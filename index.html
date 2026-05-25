@@ -72,7 +72,7 @@
     body {
       background-color: #131313;
       color: #e5e2e1;
-      font-family: 'Inter', sans-serif;
+      font-family: 'Cairo', 'Inter', sans-serif;
       -webkit-tap-highlight-color: transparent;
       overflow-x: hidden;
     }
@@ -648,8 +648,8 @@
           <span class="material-symbols-outlined" style="color:#bec2ff;">arrow_back</span>
         </button>
         <h1 id="detail-title"
-          style="font-size:18px; font-weight:700; color:#e5e2e1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-          Song Title</h1>
+          style="font-size:18px; font-weight:700; color:#e5e2e1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"
+          dir="auto">Song Title</h1>
       </div>
       <div style="display:flex; gap:4px; flex-shrink:0;">
         <button class="icon-btn" id="btn-edit-song" title="Edit">
@@ -718,8 +718,8 @@
           <span class="material-symbols-outlined" style="color:#bec2ff;">format_align_left</span>
         </div>
         <div id="detail-lyrics"
-          style="background:#0e0e0e; border:1px solid #454653; border-radius:0.75rem; padding:16px; font-size:16px; line-height:1.75; white-space:pre-wrap; word-break:break-word; color:#e5e2e1;">
-        </div>
+          style="background:#0e0e0e; border:1px solid #454653; border-radius:0.75rem; padding:16px; font-size:16px; line-height:1.75; white-space:pre-wrap; word-break:break-word; color:#e5e2e1;"
+          dir="auto"></div>
       </div>
 
       <!-- Notes -->
@@ -729,7 +729,7 @@
           <span class="material-symbols-outlined" style="color:#bec2ff;">sticky_note_2</span>
         </div>
         <div style="background:#0e0e0e; border:1px solid #454653; border-radius:0.75rem; padding:16px;">
-          <p id="detail-notes" style="font-size:15px; line-height:1.6; color:#c6c5d6; margin:0;"></p>
+          <p id="detail-notes" style="font-size:15px; line-height:1.6; color:#c6c5d6; margin:0;" dir="auto"></p>
         </div>
       </div>
 
@@ -764,12 +764,12 @@
       <div style="display:flex; flex-direction:column; gap:14px;">
         <div>
           <label>Song Name *</label>
-          <input id="field-name" type="text" placeholder="e.g. Hallelujah Chorus" />
+          <input id="field-name" type="text" placeholder="e.g. Hallelujah Chorus" dir="auto" />
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
           <div>
             <label>Key / Scale</label>
-            <input id="field-key" type="text" placeholder="e.g. D Major" />
+            <input id="field-key" type="text" placeholder="e.g. D Major" dir="auto" />
           </div>
           <div>
             <label>BPM</label>
@@ -778,7 +778,7 @@
         </div>
         <div>
           <label>Rhythm</label>
-          <input id="field-rhythm" type="text" placeholder="e.g. 4/4" />
+          <input id="field-rhythm" type="text" placeholder="e.g. 4/4" dir="auto" />
         </div>
         <!-- Structure Builder -->
         <div>
@@ -803,12 +803,12 @@
         <!-- Lyrics Builder -->
         <div>
           <label>Lyrics</label>
-          <textarea id="field-lyrics" placeholder="Paste full lyrics here…" style="min-height:200px;"></textarea>
+          <textarea id="field-lyrics" placeholder="Paste full lyrics here…" dir="auto"
+            style="min-height:200px;"></textarea>
         </div>
         <div>
           <label>Notes</label>
-          <textarea id="field-notes" placeholder="Director notes, cues, special instructions…"
-            style="min-height:70px;"></textarea>
+          <textarea id="field-notes" placeholder="Director notes…" dir="auto" style="min-height:70px;"></textarea>
         </div>
 
         <div style="display:flex; gap:10px; padding-top:8px;">
