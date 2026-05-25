@@ -437,6 +437,7 @@
       const DEFAULT_PIN = "1234";
       const MAX_AUDIO_MB = 5;
       const MAX_AUDIO_BYTES = MAX_AUDIO_MB * 1024 * 1024;
+      const FALLBACK_FILENAME = "audio";
       const UUID_PREFIX_REGEX = /^[a-f0-9-]{36}-/i;
       const UUID_REGEX =
         /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -503,7 +504,7 @@
       async function fetchSongs(query = "") {
         let request = client.from("songs").select("*").order("name");
         if (query) {
-          const safeQuery = query.replace(/[%_]/g, (match) => `\\${match}`);
+          const safeQuery = query.replace(/[%_]/g, "");
           request = request.or(
             `name.ilike.%${safeQuery}%,key.ilike.%${safeQuery}%`
           );
@@ -780,16 +781,17 @@
         };
       }
 
-      function safeFileName(fileName) {
-        const sanitized = fileName.replace(/[^a-zA-Z0-9._-]+/g, "_");
-        const noLeadingDots = sanitized.replace(/^\.+/, "_");
-        const parts = noLeadingDots.split(".");
-        if (parts.length === 1) {
-          return parts[0] || "audio";
-        }
-        const extension = parts.pop() || "audio";
-        const base = parts.join("_").replace(/\.+/g, "_") || "audio";
-        return `${base}.${extension}`;
+      function safeFileName(file) {
+        const baseName = file.name
+          .replace(/[^a-zA-Z0-9_-]+/g, "_")
+          .replace(/^_+/, "") || FALLBACK_FILENAME;
+        const extensionFromType = file.type ? file.type.split("/")[1] : "";
+        const extensionFromName = file.name.split(".").pop() || "";
+        const extension = (extensionFromType || extensionFromName || "audio").replace(
+          /[^a-zA-Z0-9]+/g,
+          ""
+        );
+        return `${baseName}.${extension || "audio"}`;
       }
 
       function isValidUuid(value) {
@@ -834,7 +836,7 @@
 
         for (const file of files) {
           const uniqueName = `${editingSongId}/${crypto.randomUUID()}-${safeFileName(
-            file.name
+            file
           )}`;
           const { error: uploadError } = await client.storage
             .from(BUCKET_NAME)
