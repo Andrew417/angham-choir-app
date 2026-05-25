@@ -1,6 +1,3 @@
-Here is the rewritten documentation as a **project description for AI agents** – a concise, structured spec that gives an AI all the information needed to continue development, deployment, or maintenance.
-
----
 
 # Project: Choir Song Manager (Angham St. Mark’s Choir)
 
