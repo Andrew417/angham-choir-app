@@ -1227,11 +1227,12 @@ document.getElementById('btn-save-song').onclick = async () => {
   if (error) { showToast('Save failed: ' + error.message); return; }
 
   showToast(editingSongId ? 'Song updated!' : 'Song added!');
-  const wasEditingCurrent = editingSongId && currentSongId === editingSongId;
+  const savedId = editingSongId;
+  const wasEditingCurrent = savedId && currentSongId === savedId;
   closeSongModal();
   await loadSongs();
   if (wasEditingCurrent) {
-    openSongDetail(editingSongId);
+    openSongDetail(savedId);
   }
 };
 
