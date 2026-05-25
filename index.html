@@ -438,6 +438,8 @@
       const MAX_AUDIO_MB = 5;
       const MAX_AUDIO_BYTES = MAX_AUDIO_MB * 1024 * 1024;
       const UUID_PREFIX_REGEX = /^[a-f0-9-]{36}-/i;
+      const UUID_REGEX =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
       const PIN_STORAGE_KEY = "choirAdminPin";
       const ADMIN_UNLOCK_KEY = "choirAdminUnlocked";
 
@@ -501,7 +503,7 @@
       async function fetchSongs(query = "") {
         let request = client.from("songs").select("*").order("name");
         if (query) {
-          const safeQuery = query.replace(/[%_]/g, "\\$&");
+          const safeQuery = query.replace(/[%_]/g, (match) => `\\${match}`);
           request = request.or(
             `name.ilike.%${safeQuery}%,key.ilike.%${safeQuery}%`
           );
@@ -781,7 +783,17 @@
       function safeFileName(fileName) {
         const sanitized = fileName.replace(/[^a-zA-Z0-9._-]+/g, "_");
         const noLeadingDots = sanitized.replace(/^\.+/, "_");
-        return noLeadingDots.replace(/\.\.+/g, "_");
+        const parts = noLeadingDots.split(".");
+        if (parts.length === 1) {
+          return parts[0] || "audio";
+        }
+        const extension = parts.pop() || "audio";
+        const base = parts.join("_").replace(/\.+/g, "_") || "audio";
+        return `${base}.${extension}`;
+      }
+
+      function isValidUuid(value) {
+        return UUID_REGEX.test(value || "");
       }
 
       function isLikelyAudioFile(file) {
@@ -794,6 +806,10 @@
       async function uploadAudioFiles() {
         if (!editingSongId) {
           setStatus("Select a song to upload audio.", "error");
+          return;
+        }
+        if (!isValidUuid(editingSongId)) {
+          setStatus("Invalid song ID for upload.", "error");
           return;
         }
         if (!audioFiles.files.length) {
