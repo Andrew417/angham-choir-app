@@ -1,664 +1,984 @@
 <!DOCTYPE html>
 <html class="dark" lang="en">
+
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>ChoirNotes – Angham St. Mark's</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Geist:wght@400;500;600&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet"/>
-<script>
-  tailwind.config = {
-    darkMode: "class",
-    theme: {
-      extend: {
-        colors: {
-          "surface":                   "#131313",
-          "surface-dim":               "#131313",
-          "surface-bright":            "#393939",
-          "surface-container-lowest":  "#0e0e0e",
-          "surface-container-low":     "#1c1b1b",
-          "surface-container":         "#201f1f",
-          "surface-container-high":    "#2a2a2a",
-          "surface-container-highest": "#353534",
-          "surface-variant":           "#353534",
-          "on-surface":                "#e5e2e1",
-          "on-surface-variant":        "#c6c5d6",
-          "background":                "#131313",
-          "on-background":             "#e5e2e1",
-          "primary":                   "#bec2ff",
-          "on-primary":                "#0f1798",
-          "primary-container":         "#3740b6",
-          "on-primary-container":      "#b8bcff",
-          "secondary":                 "#E60188",
-          "on-secondary":              "#ffffff",
-          "secondary-container":       "#E60188",
-          "on-secondary-container":    "#ffffff",
-          "tertiary":                  "#00dbe7",
-          "tertiary-container":        "#00585d",
-          "on-tertiary-container":     "#00d5e1",
-          "error":                     "#ffb4ab",
-          "error-container":           "#93000a",
-          "on-error-container":        "#ffdad6",
-          "outline":                   "#908f9f",
-          "outline-variant":           "#454653",
-          "inverse-surface":           "#e5e2e1",
-          "inverse-on-surface":        "#313030",
-          "inverse-primary":           "#4751c6",
-          "accent-pink":               "#e60188",
-        },
-        fontFamily: {
-          sans: ["Inter", "sans-serif"],
-          mono: ["Geist", "monospace"],
-        },
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>ChoirNotes – Angham St. Mark's</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Geist:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap"
+    rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface": "#131313",
+            "surface-dim": "#131313",
+            "surface-bright": "#393939",
+            "surface-container-lowest": "#0e0e0e",
+            "surface-container-low": "#1c1b1b",
+            "surface-container": "#201f1f",
+            "surface-container-high": "#2a2a2a",
+            "surface-container-highest": "#353534",
+            "surface-variant": "#353534",
+            "on-surface": "#e5e2e1",
+            "on-surface-variant": "#c6c5d6",
+            "background": "#131313",
+            "on-background": "#e5e2e1",
+            "primary": "#bec2ff",
+            "on-primary": "#0f1798",
+            "primary-container": "#3740b6",
+            "on-primary-container": "#b8bcff",
+            "secondary": "#E60188",
+            "on-secondary": "#ffffff",
+            "secondary-container": "#E60188",
+            "on-secondary-container": "#ffffff",
+            "tertiary": "#00dbe7",
+            "tertiary-container": "#00585d",
+            "on-tertiary-container": "#00d5e1",
+            "error": "#ffb4ab",
+            "error-container": "#93000a",
+            "on-error-container": "#ffdad6",
+            "outline": "#908f9f",
+            "outline-variant": "#454653",
+            "inverse-surface": "#e5e2e1",
+            "inverse-on-surface": "#313030",
+            "inverse-primary": "#4751c6",
+            "accent-pink": "#e60188",
+          },
+          fontFamily: {
+            sans: ["Inter", "sans-serif"],
+            mono: ["Geist", "monospace"],
+          },
+        }
       }
     }
-  }
-</script>
-<style>
-  * { box-sizing: border-box; }
-  body {
-    background-color: #131313;
-    color: #e5e2e1;
-    font-family: 'Inter', sans-serif;
-    -webkit-tap-highlight-color: transparent;
-    overflow-x: hidden;
-  }
-  .material-symbols-outlined {
-    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-    display: inline-block;
-    line-height: 1;
-    vertical-align: middle;
-    user-select: none;
-  }
-  /* Screen transitions */
-  .screen { display: none; }
-  .screen.active { display: flex; flex-direction: column; min-height: 100dvh; }
+  </script>
 
-  /* Modal */
-  #modal-overlay {
-    display: none;
-    position: fixed; inset: 0; z-index: 100;
-    background: rgba(0,0,0,0.7);
-    backdrop-filter: blur(4px);
-    align-items: flex-end;
-    justify-content: center;
-  }
-  #modal-overlay.open { display: flex; }
-  #modal-sheet {
-    background: #201f1f;
-    border-top: 1px solid #454653;
-    border-radius: 1.25rem 1.25rem 0 0;
-    width: 100%;
-    max-width: 768px;
-    max-height: 92dvh;
-    overflow-y: auto;
-    padding: 1.5rem 1rem 2.5rem;
-    animation: slideUp 0.28s cubic-bezier(0.34,1.1,0.64,1);
-  }
-  @keyframes slideUp {
-    from { transform: translateY(100%); opacity: 0; }
-    to   { transform: translateY(0);    opacity: 1; }
-  }
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-  /* Audio element dark theme fix */
-  audio { filter: invert(90%) hue-rotate(180deg) brightness(1.2); width: 100%; }
+    body {
+      background-color: #131313;
+      color: #e5e2e1;
+      font-family: 'Inter', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      overflow-x: hidden;
+    }
 
-  /* Custom scrollbar */
-  ::-webkit-scrollbar { width: 4px; height: 4px; }
-  ::-webkit-scrollbar-thumb { background: #454653; border-radius: 10px; }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      line-height: 1;
+      vertical-align: middle;
+      user-select: none;
+    }
 
-  /* Toast */
-  #toast {
-    position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
-    background: #3740b6; color: #fff; padding: 10px 20px;
-    border-radius: 999px; font-size: 14px; font-weight: 500;
-    opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 200;
-    white-space: nowrap;
-  }
-  #toast.show { opacity: 1; }
+    /* Screen transitions */
+    .screen {
+      display: none;
+    }
 
-  /* Spinner */
-  .spinner {
-    width: 20px; height: 20px;
-    border: 2px solid #454653;
-    border-top-color: #bec2ff;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    display: inline-block;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+      min-height: 100dvh;
+    }
 
-  /* Pill badge */
-  .badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 999px;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
+    /* Modal */
+    #modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      align-items: flex-end;
+      justify-content: center;
+    }
 
-  input, textarea, select {
-    background: #0e0e0e !important;
-    border: 1px solid #454653 !important;
-    color: #e5e2e1 !important;
-    border-radius: 0.75rem !important;
-    padding: 10px 14px !important;
-    width: 100% !important;
-    font-size: 16px;
-    outline: none !important;
-    transition: border-color 0.2s;
-  }
-  input:focus, textarea:focus, select:focus {
-    border-color: #bec2ff !important;
-  }
-  input::placeholder, textarea::placeholder { color: #908f9f; }
-  textarea { resize: vertical; min-height: 90px; }
-  label { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #c6c5d6; display: block; margin-bottom: 6px; }
+    #modal-overlay.open {
+      display: flex;
+    }
 
-  .btn-primary {
-    background: #3740b6; color: #b8bcff;
-    border-radius: 999px; padding: 12px 24px;
-    font-weight: 600; font-size: 15px;
-    border: none; cursor: pointer;
-    transition: opacity 0.15s, transform 0.1s;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-  }
-  .btn-primary:active { transform: scale(0.97); opacity: 0.85; }
+    #modal-sheet {
+      background: #201f1f;
+      border-top: 1px solid #454653;
+      border-radius: 1.25rem 1.25rem 0 0;
+      width: 100%;
+      max-width: 768px;
+      max-height: 92dvh;
+      overflow-y: auto;
+      padding: 1.5rem 1rem 2.5rem;
+      animation: slideUp 0.28s cubic-bezier(0.34, 1.1, 0.64, 1);
+    }
 
-  .btn-ghost {
-    background: transparent; color: #c6c5d6;
-    border-radius: 999px; padding: 10px 20px;
-    font-weight: 500; font-size: 15px;
-    border: 1px solid #454653; cursor: pointer;
-    transition: background 0.15s;
-  }
-  .btn-ghost:hover { background: #2a2a2a; }
+    @keyframes slideUp {
+      from {
+        transform: translateY(100%);
+        opacity: 0;
+      }
 
-  .icon-btn {
-    width: 40px; height: 40px;
-    display: flex; align-items: center; justify-content: center;
-    border-radius: 50%; border: none; background: transparent;
-    cursor: pointer; transition: background 0.15s, transform 0.1s;
-    color: #c6c5d6;
-  }
-  .icon-btn:hover { background: #2a2a2a; }
-  .icon-btn:active { transform: scale(0.9); }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
 
-  .song-card {
-    background: #1c1b1b;
-    border: 1px solid #454653;
-    border-radius: 0.75rem;
-    padding: 16px;
-    cursor: pointer;
-    display: flex; align-items: center; gap: 16px;
-    transition: background 0.15s, border-color 0.15s, transform 0.1s;
-  }
-  .song-card:hover { background: #2a2a2a; border-color: #908f9f; }
-  .song-card:active { transform: scale(0.98); }
+    /* Audio element dark theme fix */
+    audio {
+      filter: invert(90%) hue-rotate(180deg) brightness(1.2);
+      width: 100%;
+    }
 
-  .detail-chip {
-    background: #0e0e0e;
-    border: 1px solid #454653;
-    border-radius: 0.5rem;
-    padding: 12px;
-    display: flex; flex-direction: column; align-items: center; gap: 4px;
-    text-align: center;
-  }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
 
-  .track-card {
-    background: #0e0e0e;
-    border: 1px solid #454653;
-    border-radius: 0.75rem;
-    padding: 14px;
-    transition: border-color 0.2s;
-  }
-.track-card:hover { border-color: #bec2ff; }
-  .track-card.dragging { opacity: 0.4; border-color: #bec2ff; border-style: dashed; }
-  .track-card.drag-over { border-color: #E60188; background: #1c1b1b; }
-  .drag-handle-btn { cursor: grab; touch-action: none; }
-  .drag-handle-btn:active { cursor: grabbing; }
-  .inline-edit-input {
-    background: #1c1b1b !important; border: 1px solid #bec2ff !important;
-    border-radius: 0.5rem !important; padding: 4px 10px !important;
-    font-size: 15px !important; font-weight: 600 !important;
-    color: #e5e2e1 !important; width: auto !important; flex: 1;
-  }
+    ::-webkit-scrollbar-thumb {
+      background: #454653;
+      border-radius: 10px;
+    }
 
-  /* Section block colors */
-  .sblock { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:999px; font-size:12px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; cursor:default; user-select:none; }
-  .sblock-intro    { background:#004f54; color:#74f5ff; }
-  .sblock-verse    { background:#1a3a6b; color:#93c5fd; }
-  .sblock-chorus   { background:#6b0038; color:#ffb0cc; }
-  .sblock-bridge   { background:#3b1a6b; color:#d8b4fe; }
-  .sblock-break    { background:#5c3200; color:#fdba74; }
-  .sblock-outro    { background:#2a2a2a; color:#c6c5d6; }
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #3740b6;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 500;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 200;
+      white-space: nowrap;
+    }
 
-  /* Lyrics section */
-  .lyrics-section { border-radius:0.75rem; overflow:hidden; margin-bottom:14px; }
-  .lyrics-section-header { padding:10px 16px; font-size:12px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; display:flex; justify-content:space-between; align-items:center; }
-  .lyrics-section-body { padding:14px 16px; font-size:16px; line-height:1.75; white-space:pre-wrap; word-break:break-word; background:rgba(0,0,0,0.25); }
+    #toast.show {
+      opacity: 1;
+    }
 
-  .lsec-intro    .lyrics-section-header { background:#004f54; color:#74f5ff; }
-  .lsec-verse    .lyrics-section-header { background:#1a3a6b; color:#93c5fd; }
-  .lsec-chorus   .lyrics-section-header { background:#6b0038; color:#ffb0cc; }
-  .lsec-bridge   .lyrics-section-header { background:#3b1a6b; color:#d8b4fe; }
-  .lsec-break    .lyrics-section-header { background:#5c3200; color:#fdba74; }
-  .lsec-outro    .lyrics-section-header { background:#2a2a2a; color:#c6c5d6; }
+    /* Spinner */
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #454653;
+      border-top-color: #bec2ff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+    }
 
-  .lsec-intro    { border:1px solid #004f54; }
-  .lsec-verse    { border:1px solid #1a3a6b; }
-  .lsec-chorus   { border:1px solid #6b0038; }
-  .lsec-bridge   { border:1px solid #3b1a6b; }
-  .lsec-break    { border:1px solid #5c3200; }
-  .lsec-outro    { border:1px solid #454653; }
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
 
-  /* Structure builder */
-  .sblock-btn { padding:8px 14px; border-radius:999px; font-size:12px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; border:none; cursor:pointer; transition:opacity 0.15s, transform 0.1s; }
-  .sblock-btn:active { transform:scale(0.93); opacity:0.8; }
+    /* Pill badge */
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
 
-  .section-header {
-    display: flex; justify-content: space-between; align-items: center;
-    border-bottom: 1px solid #454653;
-    padding-bottom: 8px; margin-bottom: 12px;
-  }
+    input,
+    textarea,
+    select {
+      background: #0e0e0e !important;
+      border: 1px solid #454653 !important;
+      color: #e5e2e1 !important;
+      border-radius: 0.75rem !important;
+      padding: 10px 14px !important;
+      width: 100% !important;
+      font-size: 16px;
+      outline: none !important;
+      transition: border-color 0.2s;
+    }
 
-  .empty-state {
-    text-align: center; padding: 48px 16px;
-    color: #908f9f;
-    display: flex; flex-direction: column; align-items: center; gap: 12px;
-  }
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: #bec2ff !important;
+    }
 
-  /* Confirm dialog */
-  #confirm-overlay {
-    display: none; position: fixed; inset: 0; z-index: 150;
-    background: rgba(0,0,0,0.8); align-items: center; justify-content: center;
-  }
-  #confirm-overlay.open { display: flex; }
-  #confirm-box {
-    background: #201f1f; border: 1px solid #454653;
-    border-radius: 1rem; padding: 24px; max-width: 320px; width: 90%;
-    text-align: center;
-  }
-</style>
+    input::placeholder,
+    textarea::placeholder {
+      color: #908f9f;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 90px;
+    }
+
+    label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #c6c5d6;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .btn-primary {
+      background: #3740b6;
+      color: #b8bcff;
+      border-radius: 999px;
+      padding: 12px 24px;
+      font-weight: 600;
+      font-size: 15px;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-primary:active {
+      transform: scale(0.97);
+      opacity: 0.85;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: #c6c5d6;
+      border-radius: 999px;
+      padding: 10px 20px;
+      font-weight: 500;
+      font-size: 15px;
+      border: 1px solid #454653;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-ghost:hover {
+      background: #2a2a2a;
+    }
+
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      color: #c6c5d6;
+    }
+
+    .icon-btn:hover {
+      background: #2a2a2a;
+    }
+
+    .icon-btn:active {
+      transform: scale(0.9);
+    }
+
+    .song-card {
+      background: #1c1b1b;
+      border: 1px solid #454653;
+      border-radius: 0.75rem;
+      padding: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    }
+
+    .song-card:hover {
+      background: #2a2a2a;
+      border-color: #908f9f;
+    }
+
+    .song-card:active {
+      transform: scale(0.98);
+    }
+
+    .detail-chip {
+      background: #0e0e0e;
+      border: 1px solid #454653;
+      border-radius: 0.5rem;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      text-align: center;
+    }
+
+    .track-card {
+      background: #0e0e0e;
+      border: 1px solid #454653;
+      border-radius: 0.75rem;
+      padding: 14px;
+      transition: border-color 0.2s;
+    }
+
+    .track-card:hover {
+      border-color: #bec2ff;
+    }
+
+    .track-card.dragging {
+      opacity: 0.4;
+      border-color: #bec2ff;
+      border-style: dashed;
+    }
+
+    .track-card.drag-over {
+      border-color: #E60188;
+      background: #1c1b1b;
+    }
+
+    .drag-handle-btn {
+      cursor: grab;
+      touch-action: none;
+    }
+
+    .drag-handle-btn:active {
+      cursor: grabbing;
+    }
+
+    .inline-edit-input {
+      background: #1c1b1b !important;
+      border: 1px solid #bec2ff !important;
+      border-radius: 0.5rem !important;
+      padding: 4px 10px !important;
+      font-size: 15px !important;
+      font-weight: 600 !important;
+      color: #e5e2e1 !important;
+      width: auto !important;
+      flex: 1;
+    }
+
+    /* Section block colors */
+    .sblock {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: default;
+      user-select: none;
+    }
+
+    .sblock-intro {
+      background: #004f54;
+      color: #74f5ff;
+    }
+
+    .sblock-verse {
+      background: #1a3a6b;
+      color: #93c5fd;
+    }
+
+    .sblock-chorus {
+      background: #6b0038;
+      color: #ffb0cc;
+    }
+
+    .sblock-bridge {
+      background: #3b1a6b;
+      color: #d8b4fe;
+    }
+
+    .sblock-break {
+      background: #5c3200;
+      color: #fdba74;
+    }
+
+    .sblock-outro {
+      background: #2a2a2a;
+      color: #c6c5d6;
+    }
+
+    /* Lyrics section */
+    .lyrics-section {
+      border-radius: 0.75rem;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+
+    .lyrics-section-header {
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .lyrics-section-body {
+      padding: 14px 16px;
+      font-size: 16px;
+      line-height: 1.75;
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: rgba(0, 0, 0, 0.25);
+    }
+
+    .lsec-intro .lyrics-section-header {
+      background: #004f54;
+      color: #74f5ff;
+    }
+
+    .lsec-verse .lyrics-section-header {
+      background: #1a3a6b;
+      color: #93c5fd;
+    }
+
+    .lsec-chorus .lyrics-section-header {
+      background: #6b0038;
+      color: #ffb0cc;
+    }
+
+    .lsec-bridge .lyrics-section-header {
+      background: #3b1a6b;
+      color: #d8b4fe;
+    }
+
+    .lsec-break .lyrics-section-header {
+      background: #5c3200;
+      color: #fdba74;
+    }
+
+    .lsec-outro .lyrics-section-header {
+      background: #2a2a2a;
+      color: #c6c5d6;
+    }
+
+    .lsec-intro {
+      border: 1px solid #004f54;
+    }
+
+    .lsec-verse {
+      border: 1px solid #1a3a6b;
+    }
+
+    .lsec-chorus {
+      border: 1px solid #6b0038;
+    }
+
+    .lsec-bridge {
+      border: 1px solid #3b1a6b;
+    }
+
+    .lsec-break {
+      border: 1px solid #5c3200;
+    }
+
+    .lsec-outro {
+      border: 1px solid #454653;
+    }
+
+    /* Structure builder */
+    .sblock-btn {
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+
+    .sblock-btn:active {
+      transform: scale(0.93);
+      opacity: 0.8;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #454653;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px 16px;
+      color: #908f9f;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Confirm dialog */
+    #confirm-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 150;
+      background: rgba(0, 0, 0, 0.8);
+      align-items: center;
+      justify-content: center;
+    }
+
+    #confirm-overlay.open {
+      display: flex;
+    }
+
+    #confirm-box {
+      background: #201f1f;
+      border: 1px solid #454653;
+      border-radius: 1rem;
+      padding: 24px;
+      max-width: 320px;
+      width: 90%;
+      text-align: center;
+    }
+  </style>
 </head>
+
 <body>
 
-<!-- ═══════════════════════════════════════════
+  <!-- ═══════════════════════════════════════════
      SCREEN 1: DASHBOARD
 ════════════════════════════════════════════ -->
-<div id="screen-dashboard" class="screen active">
-  <!-- Header -->
-  <header style="background:#131313; border-bottom:1px solid #454653; position:sticky; top:0; z-index:50; padding: 0 16px; height:64px; display:flex; justify-content:space-between; align-items:center; max-width:768px; width:100%; margin:0 auto;">
-    <div style="display:flex; align-items:center; gap:10px;">
-      <span class="material-symbols-outlined" style="color:#bec2ff; font-size:28px;">music_note</span>
-      <h1 style="font-size:20px; font-weight:700; color:#e5e2e1;">An8am Choir</h1>
-    </div>
-    <button class="icon-btn" id="btn-add-song" title="Add Song" style="background:#3740b6; color:#b8bcff; width:40px; height:40px;">
-      <span class="material-symbols-outlined">add</span>
-    </button>
-  </header>
-
-  <!-- Body -->
-  <main style="flex:1; max-width:768px; width:100%; margin:0 auto; padding:20px 16px 100px; display:flex; flex-direction:column; gap:20px;">
-    <!-- Search -->
-    <div style="position:relative;">
-      <span class="material-symbols-outlined" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#908f9f; pointer-events:none;">search</span>
-      <input id="search-input" type="text" placeholder="Search by name or key…" style="padding-left:44px !important;"/>
-    </div>
-
-    <!-- Stats -->
-    <div style="background:#1c1b1b; border:1px solid #454653; border-radius:0.75rem; padding:20px; text-align:center;">
-      <div style="font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#908f9f; margin-bottom:4px;">Total Songs</div>
-      <div id="song-count" style="font-size:48px; font-weight:800; line-height:1; color:#bec2ff;">–</div>
-    </div>
-
-    <!-- Song List -->
-    <div>
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-        <h2 style="font-size:20px; font-weight:600; color:#e5e2e1;">Repertoire</h2>
+  <div id="screen-dashboard" class="screen active">
+    <!-- Header -->
+    <header
+      style="background:#131313; border-bottom:1px solid #454653; position:sticky; top:0; z-index:50; padding: 0 16px; height:64px; display:flex; justify-content:space-between; align-items:center; max-width:768px; width:100%; margin:0 auto;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span class="material-symbols-outlined" style="color:#bec2ff; font-size:28px;">music_note</span>
+        <h1 style="font-size:20px; font-weight:700; color:#e5e2e1;">An8am Choir</h1>
       </div>
-      <div id="song-list" style="display:flex; flex-direction:column; gap:10px;">
-        <div class="empty-state">
-          <div class="spinner"></div>
-          <span>Loading songs…</span>
+      <button class="icon-btn" id="btn-add-song" title="Add Song"
+        style="background:#3740b6; color:#b8bcff; width:40px; height:40px;">
+        <span class="material-symbols-outlined">add</span>
+      </button>
+    </header>
+
+    <!-- Body -->
+    <main
+      style="flex:1; max-width:768px; width:100%; margin:0 auto; padding:20px 16px 100px; display:flex; flex-direction:column; gap:20px;">
+      <!-- Search -->
+      <div style="position:relative;">
+        <span class="material-symbols-outlined"
+          style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#908f9f; pointer-events:none;">search</span>
+        <input id="search-input" type="text" placeholder="Search by name or key…"
+          style="padding-left:44px !important;" />
+      </div>
+
+      <!-- Stats -->
+      <div
+        style="background:#1c1b1b; border:1px solid #454653; border-radius:0.75rem; padding:20px; text-align:center;">
+        <div
+          style="font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#908f9f; margin-bottom:4px;">
+          Total Songs</div>
+        <div id="song-count" style="font-size:48px; font-weight:800; line-height:1; color:#bec2ff;">–</div>
+      </div>
+
+      <!-- Song List -->
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <h2 style="font-size:20px; font-weight:600; color:#e5e2e1;">Repertoire</h2>
+        </div>
+        <div id="song-list" style="display:flex; flex-direction:column; gap:10px;">
+          <div class="empty-state">
+            <div class="spinner"></div>
+            <span>Loading songs…</span>
+          </div>
         </div>
       </div>
-    </div>
-  </main>
+    </main>
 
-  <!-- Bottom Nav -->
-  <nav style="position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:768px; z-index:50; background:rgba(19,19,19,0.92); backdrop-filter:blur(12px); border-top:1px solid #454653; height:64px; display:flex; justify-content:space-around; align-items:center; padding:0 16px;">
-    <a href="#" style="display:flex; flex-direction:column; align-items:center; gap:2px; color:#bec2ff; font-size:11px; font-weight:700; text-decoration:none;">
-      <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">library_music</span>
-      Repertoire
-    </a>
-  </nav>
-</div>
+    <!-- Bottom Nav -->
+    <nav
+      style="position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:768px; z-index:50; background:rgba(19,19,19,0.92); backdrop-filter:blur(12px); border-top:1px solid #454653; height:64px; display:flex; justify-content:space-around; align-items:center; padding:0 16px;">
+      <a href="#"
+        style="display:flex; flex-direction:column; align-items:center; gap:2px; color:#bec2ff; font-size:11px; font-weight:700; text-decoration:none;">
+        <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">library_music</span>
+        Repertoire
+      </a>
+    </nav>
+  </div>
 
 
-<!-- ═══════════════════════════════════════════
+  <!-- ═══════════════════════════════════════════
      SCREEN 2: SONG DETAIL
 ════════════════════════════════════════════ -->
-<div id="screen-detail" class="screen">
-  <!-- Header -->
-  <header style="background:#131313; border-bottom:1px solid #454653; position:sticky; top:0; z-index:50; padding:0 16px; height:64px; display:flex; justify-content:space-between; align-items:center; max-width:768px; width:100%; margin:0 auto;">
-    <div style="display:flex; align-items:center; gap:8px; min-width:0;">
-      <button class="icon-btn" id="btn-back" style="flex-shrink:0;">
-        <span class="material-symbols-outlined" style="color:#bec2ff;">arrow_back</span>
-      </button>
-      <h1 id="detail-title" style="font-size:18px; font-weight:700; color:#e5e2e1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Song Title</h1>
-    </div>
-    <div style="display:flex; gap:4px; flex-shrink:0;">
-      <button class="icon-btn" id="btn-edit-song" title="Edit">
-        <span class="material-symbols-outlined" style="color:#bec2ff;">edit</span>
-      </button>
-      <button class="icon-btn" id="btn-delete-song" title="Delete">
-        <span class="material-symbols-outlined" style="color:#ffb4ab;">delete</span>
-      </button>
-    </div>
-  </header>
-
-  <!-- Body -->
-  <main id="detail-body" style="flex:1; max-width:768px; width:100%; margin:0 auto; padding:20px 16px 100px; display:flex; flex-direction:column; gap:24px;">
-    <!-- Chips row -->
-    <div id="detail-chips" class="grid grid-cols-2 gap-2" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
-
-    <!-- Structure -->
-    <div id="detail-structure-wrap" style="display:none;">
-      <div class="section-header">
-        <h2 style="font-size:18px; font-weight:700;">Structure</h2>
-        <span class="material-symbols-outlined" style="color:#bec2ff;">queue_music</span>
+  <div id="screen-detail" class="screen">
+    <!-- Header -->
+    <header
+      style="background:#131313; border-bottom:1px solid #454653; position:sticky; top:0; z-index:50; padding:0 16px; height:64px; display:flex; justify-content:space-between; align-items:center; max-width:768px; width:100%; margin:0 auto;">
+      <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+        <button class="icon-btn" id="btn-back" style="flex-shrink:0;">
+          <span class="material-symbols-outlined" style="color:#bec2ff;">arrow_back</span>
+        </button>
+        <h1 id="detail-title"
+          style="font-size:18px; font-weight:700; color:#e5e2e1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+          Song Title</h1>
       </div>
-      <div id="detail-structure" style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;"></div>
-    </div>
-
-    <!-- Lyrics -->
-    <div id="detail-lyrics-wrap" style="display:none;">
-      <div class="section-header">
-        <h2 style="font-size:18px; font-weight:700;">Lyrics</h2>
-        <span class="material-symbols-outlined" style="color:#bec2ff;">format_align_left</span>
-      </div>
-      <div id="detail-lyrics"></div>
-    </div>
-
-    <!-- Notes -->
-    <div id="detail-notes-wrap" style="display:none;">
-      <div class="section-header">
-        <h2 style="font-size:18px; font-weight:700;">Notes</h2>
-        <span class="material-symbols-outlined" style="color:#bec2ff;">sticky_note_2</span>
-      </div>
-      <div style="background:#0e0e0e; border:1px solid #454653; border-radius:0.75rem; padding:16px;">
-        <p id="detail-notes" style="font-size:15px; line-height:1.6; color:#c6c5d6; margin:0;"></p>
-      </div>
-    </div>
-
-    <!-- Audio Tracks -->
-    <div>
-      <div class="section-header">
-        <h2 style="font-size:18px; font-weight:700;">Audio Tracks</h2>
-        <button class="icon-btn" id="btn-add-audio" style="background:#3740b6; color:#b8bcff; width:34px; height:34px;">
-          <span class="material-symbols-outlined" style="font-size:20px;">add</span>
+      <div style="display:flex; gap:4px; flex-shrink:0;">
+        <button class="icon-btn" id="btn-edit-song" title="Edit">
+          <span class="material-symbols-outlined" style="color:#bec2ff;">edit</span>
+        </button>
+        <button class="icon-btn" id="btn-delete-song" title="Delete">
+          <span class="material-symbols-outlined" style="color:#ffb4ab;">delete</span>
         </button>
       </div>
-      <div id="audio-list" style="display:flex; flex-direction:column; gap:10px;">
-        <div class="empty-state" style="padding:24px;">
-          <span class="material-symbols-outlined" style="font-size:36px; color:#454653;">audio_file</span>
-          <span style="font-size:14px;">No audio tracks yet</span>
+    </header>
+
+    <!-- Body -->
+    <main id="detail-body"
+      style="flex:1; max-width:768px; width:100%; margin:0 auto; padding:20px 16px 100px; display:flex; flex-direction:column; gap:24px;">
+      <!-- Chips row -->
+      <div id="detail-chips" class="grid grid-cols-2 gap-2"
+        style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
+
+      <!-- Structure -->
+      <div id="detail-structure-wrap" style="display:none;">
+        <div class="section-header">
+          <h2 style="font-size:18px; font-weight:700;">Structure</h2>
+          <span class="material-symbols-outlined" style="color:#bec2ff;">queue_music</span>
+        </div>
+        <div id="detail-structure" style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;"></div>
+      </div>
+
+      <!-- Lyrics -->
+      <div id="detail-lyrics-wrap" style="display:none;">
+        <div class="section-header">
+          <h2 style="font-size:18px; font-weight:700;">Lyrics</h2>
+          <span class="material-symbols-outlined" style="color:#bec2ff;">format_align_left</span>
+        </div>
+        <div id="detail-lyrics"></div>
+      </div>
+
+      <!-- Notes -->
+      <div id="detail-notes-wrap" style="display:none;">
+        <div class="section-header">
+          <h2 style="font-size:18px; font-weight:700;">Notes</h2>
+          <span class="material-symbols-outlined" style="color:#bec2ff;">sticky_note_2</span>
+        </div>
+        <div style="background:#0e0e0e; border:1px solid #454653; border-radius:0.75rem; padding:16px;">
+          <p id="detail-notes" style="font-size:15px; line-height:1.6; color:#c6c5d6; margin:0;"></p>
         </div>
       </div>
-    </div>
 
-    <!-- Chord Sheets -->
-    <div>
-      <div class="section-header">
-        <h2 style="font-size:18px; font-weight:700;">Chord Sheets</h2>
-        <button class="icon-btn" id="btn-add-chord" style="background:#3740b6; color:#b8bcff; width:34px; height:34px;">
-          <span class="material-symbols-outlined" style="font-size:20px;">add</span>
-        </button>
-      </div>
-      <div id="chord-list" style="display:flex; flex-direction:column; gap:10px;">
-        <div class="empty-state" style="padding:24px;">
-          <span class="material-symbols-outlined" style="font-size:36px; color:#454653;">music_note</span>
-          <span style="font-size:14px;">No chord sheets yet</span>
+      <!-- Audio Tracks -->
+      <div>
+        <div class="section-header">
+          <h2 style="font-size:18px; font-weight:700;">Audio Tracks</h2>
+          <button class="icon-btn" id="btn-add-audio"
+            style="background:#3740b6; color:#b8bcff; width:34px; height:34px;">
+            <span class="material-symbols-outlined" style="font-size:20px;">add</span>
+          </button>
+        </div>
+        <div id="audio-list" style="display:flex; flex-direction:column; gap:10px;">
+          <div class="empty-state" style="padding:24px;">
+            <span class="material-symbols-outlined" style="font-size:36px; color:#454653;">audio_file</span>
+            <span style="font-size:14px;">No audio tracks yet</span>
+          </div>
         </div>
       </div>
-    </div>
-  </main>
 
-  <!-- Bottom Nav -->
-  <nav style="position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:768px; z-index:50; background:rgba(19,19,19,0.92); backdrop-filter:blur(12px); border-top:1px solid #454653; height:64px; display:flex; justify-content:space-around; align-items:center; padding:0 16px;">
-    <a href="#" id="detail-nav-back" style="display:flex; flex-direction:column; align-items:center; gap:2px; color:#bec2ff; font-size:11px; font-weight:700; text-decoration:none;">
-      <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">library_music</span>
-      Repertoire
-    </a>
-  </nav>
-</div>
+      <!-- Chord Sheets -->
+      <div>
+        <div class="section-header">
+          <h2 style="font-size:18px; font-weight:700;">Chord Sheets</h2>
+          <button class="icon-btn" id="btn-add-chord"
+            style="background:#3740b6; color:#b8bcff; width:34px; height:34px;">
+            <span class="material-symbols-outlined" style="font-size:20px;">add</span>
+          </button>
+        </div>
+        <div id="chord-list" style="display:flex; flex-direction:column; gap:10px;">
+          <div class="empty-state" style="padding:24px;">
+            <span class="material-symbols-outlined" style="font-size:36px; color:#454653;">music_note</span>
+            <span style="font-size:14px;">No chord sheets yet</span>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Bottom Nav -->
+    <nav
+      style="position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:768px; z-index:50; background:rgba(19,19,19,0.92); backdrop-filter:blur(12px); border-top:1px solid #454653; height:64px; display:flex; justify-content:space-around; align-items:center; padding:0 16px;">
+      <a href="#" id="detail-nav-back"
+        style="display:flex; flex-direction:column; align-items:center; gap:2px; color:#bec2ff; font-size:11px; font-weight:700; text-decoration:none;">
+        <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">library_music</span>
+        Repertoire
+      </a>
+    </nav>
+  </div>
 
 
-<!-- ═══════════════════════════════════════════
+  <!-- ═══════════════════════════════════════════
      ADD / EDIT SONG MODAL
 ════════════════════════════════════════════ -->
-<div id="modal-overlay">
-  <div id="modal-sheet">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-      <h2 id="modal-title" style="font-size:20px; font-weight:700; color:#e5e2e1;">Add Song</h2>
-      <button class="icon-btn" id="btn-close-modal">
-        <span class="material-symbols-outlined">close</span>
-      </button>
-    </div>
-
-    <div style="display:flex; flex-direction:column; gap:14px;">
-      <div>
-        <label>Song Name *</label>
-        <input id="field-name" type="text" placeholder="e.g. Hallelujah Chorus"/>
-      </div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-        <div>
-          <label>Key / Scale</label>
-          <input id="field-key" type="text" placeholder="e.g. D Major"/>
-        </div>
-        <div>
-          <label>BPM</label>
-          <input id="field-bpm" type="number" placeholder="e.g. 104"/>
-        </div>
-      </div>
-      <div>
-        <label>Rhythm</label>
-        <input id="field-rhythm" type="text" placeholder="e.g. 4/4"/>
-      </div>
-      <!-- Structure Builder -->
-      <div>
-        <label>Structure</label>
-        <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;">
-          <button type="button" class="sblock-btn sblock-intro"  onclick="addStructureBlock('intro')">+ Intro</button>
-          <button type="button" class="sblock-btn sblock-verse"  onclick="addStructureBlock('verse')">+ Verse</button>
-          <button type="button" class="sblock-btn sblock-chorus" onclick="addStructureBlock('chorus')">+ Chorus</button>
-          <button type="button" class="sblock-btn sblock-bridge" onclick="addStructureBlock('bridge')">+ Bridge</button>
-          <button type="button" class="sblock-btn sblock-break"  onclick="addStructureBlock('break')">+ Break</button>
-          <button type="button" class="sblock-btn sblock-outro"  onclick="addStructureBlock('outro')">+ Outro</button>
-        </div>
-        <div id="structure-builder" style="display:flex; flex-wrap:wrap; gap:8px; min-height:40px; padding:10px; background:#0e0e0e; border:1px solid #454653; border-radius:0.75rem; align-items:center;">
-          <span id="structure-placeholder" style="color:#908f9f; font-size:14px;">Tap blocks above to build the structure…</span>
-        </div>
-      </div>
-
-      <!-- Lyrics Builder -->
-      <div>
-        <label>Lyrics</label>
-        <div id="lyrics-builder" style="display:flex; flex-direction:column; gap:10px;"></div>
-        <button type="button" onclick="addLyricsSection()" style="margin-top:8px; width:100%; padding:10px; background:#0e0e0e; border:1px dashed #454653; border-radius:0.75rem; color:#908f9f; font-size:14px; cursor:pointer; transition:border-color 0.2s;" onmouseover="this.style.borderColor='#bec2ff'" onmouseout="this.style.borderColor='#454653'">
-          + Add Section
+  <div id="modal-overlay">
+    <div id="modal-sheet">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2 id="modal-title" style="font-size:20px; font-weight:700; color:#e5e2e1;">Add Song</h2>
+        <button class="icon-btn" id="btn-close-modal">
+          <span class="material-symbols-outlined">close</span>
         </button>
       </div>
-      <div>
-        <label>Notes</label>
-        <textarea id="field-notes" placeholder="Director notes, cues, special instructions…" style="min-height:70px;"></textarea>
-      </div>
 
-      <div style="display:flex; gap:10px; padding-top:8px;">
-        <button class="btn-ghost" id="btn-cancel-modal" style="flex:1;">Cancel</button>
-        <button class="btn-primary" id="btn-save-song" style="flex:2;">
-          <span class="material-symbols-outlined" style="font-size:18px;">save</span>
-          Save Song
-        </button>
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <div>
+          <label>Song Name *</label>
+          <input id="field-name" type="text" placeholder="e.g. Hallelujah Chorus" />
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div>
+            <label>Key / Scale</label>
+            <input id="field-key" type="text" placeholder="e.g. D Major" />
+          </div>
+          <div>
+            <label>BPM</label>
+            <input id="field-bpm" type="number" placeholder="e.g. 104" />
+          </div>
+        </div>
+        <div>
+          <label>Rhythm</label>
+          <input id="field-rhythm" type="text" placeholder="e.g. 4/4" />
+        </div>
+        <!-- Structure Builder -->
+        <div>
+          <label>Structure</label>
+          <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;">
+            <button type="button" class="sblock-btn sblock-intro" onclick="addStructureBlock('intro')">+ Intro</button>
+            <button type="button" class="sblock-btn sblock-verse" onclick="addStructureBlock('verse')">+ Verse</button>
+            <button type="button" class="sblock-btn sblock-chorus" onclick="addStructureBlock('chorus')">+
+              Chorus</button>
+            <button type="button" class="sblock-btn sblock-bridge" onclick="addStructureBlock('bridge')">+
+              Bridge</button>
+            <button type="button" class="sblock-btn sblock-break" onclick="addStructureBlock('break')">+ Break</button>
+            <button type="button" class="sblock-btn sblock-outro" onclick="addStructureBlock('outro')">+ Outro</button>
+          </div>
+          <div id="structure-builder"
+            style="display:flex; flex-wrap:wrap; gap:8px; min-height:40px; padding:10px; background:#0e0e0e; border:1px solid #454653; border-radius:0.75rem; align-items:center;">
+            <span id="structure-placeholder" style="color:#908f9f; font-size:14px;">Tap blocks above to build the
+              structure…</span>
+          </div>
+        </div>
+
+        <!-- Lyrics Builder -->
+        <div>
+          <label>Lyrics</label>
+          <div id="lyrics-builder" style="display:flex; flex-direction:column; gap:10px;"></div>
+          <button type="button" onclick="addLyricsSection()"
+            style="margin-top:8px; width:100%; padding:10px; background:#0e0e0e; border:1px dashed #454653; border-radius:0.75rem; color:#908f9f; font-size:14px; cursor:pointer; transition:border-color 0.2s;"
+            onmouseover="this.style.borderColor='#bec2ff'" onmouseout="this.style.borderColor='#454653'">
+            + Add Section
+          </button>
+        </div>
+        <div>
+          <label>Notes</label>
+          <textarea id="field-notes" placeholder="Director notes, cues, special instructions…"
+            style="min-height:70px;"></textarea>
+        </div>
+
+        <div style="display:flex; gap:10px; padding-top:8px;">
+          <button class="btn-ghost" id="btn-cancel-modal" style="flex:1;">Cancel</button>
+          <button class="btn-primary" id="btn-save-song" style="flex:2;">
+            <span class="material-symbols-outlined" style="font-size:18px;">save</span>
+            Save Song
+          </button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
 
-<!-- ═══════════════════════════════════════════
+  <!-- ═══════════════════════════════════════════
      ADD AUDIO MODAL
 ════════════════════════════════════════════ -->
-<div id="audio-modal-overlay" style="display:none; position:fixed; inset:0; z-index:100; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:flex-end; justify-content:center;">
-  <div style="background:#201f1f; border-top:1px solid #454653; border-radius:1.25rem 1.25rem 0 0; width:100%; max-width:768px; padding:24px 16px 40px; animation:slideUp 0.28s cubic-bezier(0.34,1.1,0.64,1);">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-      <h2 style="font-size:18px; font-weight:700;">Upload Audio Track</h2>
-      <button class="icon-btn" id="btn-close-audio-modal"><span class="material-symbols-outlined">close</span></button>
-    </div>
-    <div style="display:flex; flex-direction:column; gap:12px;">
-      <div>
-        <label>Track Name</label>
-        <input id="audio-track-name" type="text" placeholder="e.g. Soprano Guide"/>
+  <div id="audio-modal-overlay"
+    style="display:none; position:fixed; inset:0; z-index:100; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:flex-end; justify-content:center;">
+    <div
+      style="background:#201f1f; border-top:1px solid #454653; border-radius:1.25rem 1.25rem 0 0; width:100%; max-width:768px; padding:24px 16px 40px; animation:slideUp 0.28s cubic-bezier(0.34,1.1,0.64,1);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2 style="font-size:18px; font-weight:700;">Upload Audio Track</h2>
+        <button class="icon-btn" id="btn-close-audio-modal"><span
+            class="material-symbols-outlined">close</span></button>
       </div>
-      <div>
-        <label>Audio File (MP3, M4A, WAV)</label>
-        <input id="audio-file-input" type="file" accept="audio/*" style="cursor:pointer;"/>
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div>
+          <label>Track Name</label>
+          <input id="audio-track-name" type="text" placeholder="e.g. Soprano Guide" />
+        </div>
+        <div>
+          <label>Audio File (MP3, M4A, WAV)</label>
+          <input id="audio-file-input" type="file" accept="audio/*" style="cursor:pointer;" />
+        </div>
+        <div id="audio-upload-progress"
+          style="display:none; padding:10px 0; color:#bec2ff; font-size:14px; display:flex; align-items:center; gap:10px;">
+          <div class="spinner"></div> Uploading…
+        </div>
+        <button class="btn-primary" id="btn-upload-audio" style="width:100%; margin-top:8px;">
+          <span class="material-symbols-outlined" style="font-size:18px;">upload</span>
+          Upload Track
+        </button>
       </div>
-      <div id="audio-upload-progress" style="display:none; padding:10px 0; color:#bec2ff; font-size:14px; display:flex; align-items:center; gap:10px;">
-        <div class="spinner"></div> Uploading…
-      </div>
-      <button class="btn-primary" id="btn-upload-audio" style="width:100%; margin-top:8px;">
-        <span class="material-symbols-outlined" style="font-size:18px;">upload</span>
-        Upload Track
-      </button>
     </div>
   </div>
-</div>
 
 
-<!-- ═══════════════════════════════════════════
+  <!-- ═══════════════════════════════════════════
      ADD CHORD SHEET MODAL
 ════════════════════════════════════════════ -->
-<div id="chord-modal-overlay" style="display:none; position:fixed; inset:0; z-index:100; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:flex-end; justify-content:center;">
-  <div style="background:#201f1f; border-top:1px solid #454653; border-radius:1.25rem 1.25rem 0 0; width:100%; max-width:768px; padding:24px 16px 40px; animation:slideUp 0.28s cubic-bezier(0.34,1.1,0.64,1);">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-      <h2 style="font-size:18px; font-weight:700;">Upload Chord Sheet</h2>
-      <button class="icon-btn" id="btn-close-chord-modal"><span class="material-symbols-outlined">close</span></button>
-    </div>
-    <div style="display:flex; flex-direction:column; gap:12px;">
-      <div>
-        <label>Sheet Name</label>
-        <input id="chord-sheet-name" type="text" placeholder="e.g. Main Score"/>
+  <div id="chord-modal-overlay"
+    style="display:none; position:fixed; inset:0; z-index:100; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:flex-end; justify-content:center;">
+    <div
+      style="background:#201f1f; border-top:1px solid #454653; border-radius:1.25rem 1.25rem 0 0; width:100%; max-width:768px; padding:24px 16px 40px; animation:slideUp 0.28s cubic-bezier(0.34,1.1,0.64,1);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2 style="font-size:18px; font-weight:700;">Upload Chord Sheet</h2>
+        <button class="icon-btn" id="btn-close-chord-modal"><span
+            class="material-symbols-outlined">close</span></button>
       </div>
-      <div>
-        <label>Image or PDF File</label>
-        <input id="chord-file-input" type="file" accept="image/*,.pdf" style="cursor:pointer;"/>
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div>
+          <label>Sheet Name</label>
+          <input id="chord-sheet-name" type="text" placeholder="e.g. Main Score" />
+        </div>
+        <div>
+          <label>Image or PDF File</label>
+          <input id="chord-file-input" type="file" accept="image/*,.pdf" style="cursor:pointer;" />
+        </div>
+        <div id="chord-upload-progress"
+          style="display:none; padding:10px 0; color:#bec2ff; font-size:14px; display:flex; align-items:center; gap:10px;">
+          <div class="spinner"></div> Uploading…
+        </div>
+        <button class="btn-primary" id="btn-upload-chord" style="width:100%; margin-top:8px;">
+          <span class="material-symbols-outlined" style="font-size:18px;">upload</span>
+          Upload Sheet
+        </button>
       </div>
-      <div id="chord-upload-progress" style="display:none; padding:10px 0; color:#bec2ff; font-size:14px; display:flex; align-items:center; gap:10px;">
-        <div class="spinner"></div> Uploading…
-      </div>
-      <button class="btn-primary" id="btn-upload-chord" style="width:100%; margin-top:8px;">
-        <span class="material-symbols-outlined" style="font-size:18px;">upload</span>
-        Upload Sheet
-      </button>
     </div>
   </div>
-</div>
 
 
-<!-- ═══════════════════════════════════════════
+  <!-- ═══════════════════════════════════════════
      CONFIRM DELETE DIALOG
 ════════════════════════════════════════════ -->
-<div id="confirm-overlay">
-  <div id="confirm-box">
-    <span class="material-symbols-outlined" style="font-size:40px; color:#ffb4ab; margin-bottom:12px;">delete_forever</span>
-    <p id="confirm-message" style="font-size:16px; color:#e5e2e1; margin-bottom:20px;">Delete this song?</p>
-    <div style="display:flex; gap:10px; justify-content:center;">
-      <button class="btn-ghost" id="btn-confirm-cancel">Cancel</button>
-      <button class="btn-primary" id="btn-confirm-ok" style="background:#93000a; color:#ffdad6;">Delete</button>
+  <div id="confirm-overlay">
+    <div id="confirm-box">
+      <span class="material-symbols-outlined"
+        style="font-size:40px; color:#ffb4ab; margin-bottom:12px;">delete_forever</span>
+      <p id="confirm-message" style="font-size:16px; color:#e5e2e1; margin-bottom:20px;">Delete this song?</p>
+      <div style="display:flex; gap:10px; justify-content:center;">
+        <button class="btn-ghost" id="btn-confirm-cancel">Cancel</button>
+        <button class="btn-primary" id="btn-confirm-ok" style="background:#93000a; color:#ffdad6;">Delete</button>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- Toast -->
-<div id="toast"></div>
+  <!-- Toast -->
+  <div id="toast"></div>
 
 
-<!-- ═══════════════════════════════════════════
+  <!-- ═══════════════════════════════════════════
      JAVASCRIPT
 ════════════════════════════════════════════ -->
-<script>
-// ─── Supabase Setup ─────────────────────────────────────────────────────────
-const SUPABASE_URL = 'https://buomipedlddbrutjxefm.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b21pcGVkbGRkYnJ1dGp4ZWZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MTYzODksImV4cCI6MjA5NTI5MjM4OX0.OiE5lLQ5N939H2dlgZQIvPjjgQg7UQUwS-mcHwVn2fw';
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  <script>
+    // ─── Supabase Setup ─────────────────────────────────────────────────────────
+    const SUPABASE_URL = 'https://buomipedlddbrutjxefm.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b21pcGVkbGRkYnJ1dGp4ZWZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MTYzODksImV4cCI6MjA5NTI5MjM4OX0.OiE5lLQ5N939H2dlgZQIvPjjgQg7UQUwS-mcHwVn2fw';
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// ─── State ───────────────────────────────────────────────────────────────────
-let allSongs = [];
-let currentSongId = null;
-let editingSongId = null;
-let confirmCallback = null;
+    // ─── State ───────────────────────────────────────────────────────────────────
+    let allSongs = [];
+    let currentSongId = null;
+    let editingSongId = null;
+    let activeStructureIndex = null;
+    let confirmCallback = null;
+    let dragIdx = null;
 
-// ─── Routing ─────────────────────────────────────────────────────────────────
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  window.scrollTo(0, 0);
-}
+    // ─── Routing ─────────────────────────────────────────────────────────────────
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      window.scrollTo(0, 0);
+    }
 
-// ─── Toast ───────────────────────────────────────────────────────────────────
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2800);
-}
+    // ─── Toast ───────────────────────────────────────────────────────────────────
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2800);
+    }
 
-// ─── Confirm Dialog ──────────────────────────────────────────────────────────
-function showConfirm(message, onOk) {
-  document.getElementById('confirm-message').textContent = message;
-  document.getElementById('confirm-overlay').classList.add('open');
-  confirmCallback = onOk;
-}
+    // ─── Confirm Dialog ──────────────────────────────────────────────────────────
+    function showConfirm(message, onOk) {
+      document.getElementById('confirm-message').textContent = message;
+      document.getElementById('confirm-overlay').classList.add('open');
+      confirmCallback = onOk;
+    }
 
-document.getElementById('btn-confirm-cancel').onclick = () => {
-  document.getElementById('confirm-overlay').classList.remove('open');
-  confirmCallback = null;
-};
+    document.getElementById('btn-confirm-cancel').onclick = () => {
+      document.getElementById('confirm-overlay').classList.remove('open');
+      confirmCallback = null;
+    };
 
-document.getElementById('btn-confirm-ok').onclick = () => {
-  document.getElementById('confirm-overlay').classList.remove('open');
-  if (confirmCallback) { confirmCallback(); confirmCallback = null; }
-};
+    document.getElementById('btn-confirm-ok').onclick = () => {
+      document.getElementById('confirm-overlay').classList.remove('open');
+      if (confirmCallback) { confirmCallback(); confirmCallback = null; }
+    };
 
-// ─── Dashboard ───────────────────────────────────────────────────────────────
-async function loadSongs() {
-  const { data, error } = await db.from('songs').select('*').order('created_at', { ascending: false });
-  if (error) { showToast('Failed to load songs'); return; }
-  allSongs = data || [];
-  renderSongList(allSongs);
-}
+    // ─── Dashboard ───────────────────────────────────────────────────────────────
+    async function loadSongs() {
+      const { data, error } = await db.from('songs').select('*').order('created_at', { ascending: false });
+      if (error) { showToast('Failed to load songs'); return; }
+      allSongs = data || [];
+      renderSongList(allSongs);
+    }
 
-function renderSongList(songs) {
-  const list = document.getElementById('song-list');
-  document.getElementById('song-count').textContent = songs.length;
+    function renderSongList(songs) {
+      const list = document.getElementById('song-list');
+      document.getElementById('song-count').textContent = songs.length;
 
-  if (songs.length === 0) {
-    list.innerHTML = `
+      if (songs.length === 0) {
+        list.innerHTML = `
       <div class="empty-state">
         <span class="material-symbols-outlined" style="font-size:48px; color:#454653;">library_music</span>
         <span>No songs found</span>
         <span style="font-size:13px;">Tap + to add the first song</span>
       </div>`;
-    return;
-  }
+        return;
+      }
 
-  list.innerHTML = songs.map(song => `
+      list.innerHTML = songs.map(song => `
     <div class="song-card" onclick="openSongDetail('${song.id}')">
       <span class="material-symbols-outlined" style="color:#bec2ff; font-size:26px; flex-shrink:0;">music_note</span>
       <div style="flex:1; min-width:0;">
@@ -672,60 +992,60 @@ function renderSongList(songs) {
       <span class="material-symbols-outlined" style="color:#E60188; flex-shrink:0;">chevron_right</span>
     </div>
   `).join('');
-}
+    }
 
-document.getElementById('search-input').addEventListener('input', function () {
-  const q = this.value.toLowerCase().trim();
-  if (!q) { renderSongList(allSongs); return; }
-  renderSongList(allSongs.filter(s =>
-    s.name.toLowerCase().includes(q) || (s.key && s.key.toLowerCase().includes(q))
-  ));
-});
+    document.getElementById('search-input').addEventListener('input', function () {
+      const q = this.value.toLowerCase().trim();
+      if (!q) { renderSongList(allSongs); return; }
+      renderSongList(allSongs.filter(s =>
+        s.name.toLowerCase().includes(q) || (s.key && s.key.toLowerCase().includes(q))
+      ));
+    });
 
-// ─── Song Detail ─────────────────────────────────────────────────────────────
-async function openSongDetail(songId) {
-  currentSongId = songId;
-  const song = allSongs.find(s => s.id === songId);
-  if (!song) return;
+    // ─── Song Detail ─────────────────────────────────────────────────────────────
+    async function openSongDetail(songId) {
+      currentSongId = songId;
+      const song = allSongs.find(s => s.id === songId);
+      if (!song) return;
 
-  document.getElementById('detail-title').textContent = song.name;
+      document.getElementById('detail-title').textContent = song.name;
 
-  // Chips
-  const chips = [
-    { label: 'Key',    value: song.key    || '—' },
-    { label: 'BPM',    value: song.bpm    || '—' },
-    { label: 'Rhythm', value: song.rhythm || '—' },
-  ];
-  document.getElementById('detail-chips').innerHTML = chips.map(c => `
+      // Chips
+      const chips = [
+        { label: 'Key', value: song.key || '—' },
+        { label: 'BPM', value: song.bpm || '—' },
+        { label: 'Rhythm', value: song.rhythm || '—' },
+      ];
+      document.getElementById('detail-chips').innerHTML = chips.map(c => `
     <div class="detail-chip">
       <div style="font-size:10px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#908f9f;">${c.label}</div>
       <div style="font-size:20px; font-weight:700; color:#bec2ff;">${escHtml(String(c.value))}</div>
     </div>
   `).join('');
 
-  // Structure
-  const structureData = safeJsonArray(song.structure);
-  const structureEl = document.getElementById('detail-structure');
-  const structureWrap = document.getElementById('detail-structure-wrap');
-  if (structureData.length) {
-    structureWrap.style.display = 'block';
-    structureEl.innerHTML = structureData.map(type => `
-      <span class="sblock sblock-${escHtml(type)}">${escHtml(BLOCK_LABELS[type] || type)}</span>
-    `).join('');
-  } else {
-    structureWrap.style.display = 'none';
-  }
+      // Structure
+      const structureData = safeJsonArray(song.structure);
+      const structureEl = document.getElementById('detail-structure');
+      const structureWrap = document.getElementById('detail-structure-wrap');
+      if (structureData.length) {
+        structureWrap.style.display = 'block';
+        structureEl.innerHTML = structureData.map(b => `
+  <span class="sblock sblock-${escHtml(b.type)}">${escHtml(BLOCK_LABELS[b.type] || b.type)} ×${b.repeat}</span>
+`).join('');
+      } else {
+        structureWrap.style.display = 'none';
+      }
 
-  // Lyrics
-  const lyricsData = safeJsonArray(song.lyrics);
-  const lyricsEl = document.getElementById('detail-lyrics');
-  const lyricsWrap = document.getElementById('detail-lyrics-wrap');
-  if (lyricsData.length) {
-    lyricsWrap.style.display = 'block';
-    const colors = { intro:['#004f54','#74f5ff'], verse:['#1a3a6b','#93c5fd'], chorus:['#6b0038','#ffb0cc'], bridge:['#3b1a6b','#d8b4fe'], break:['#5c3200','#fdba74'], outro:['#2a2a2a','#c6c5d6'] };
-    lyricsEl.innerHTML = lyricsData.map(sec => {
-      const [bg, fg] = colors[sec.type] || ['#2a2a2a','#c6c5d6'];
-      return `
+      // Lyrics
+      const lyricsData = safeJsonArray(song.lyrics);
+      const lyricsEl = document.getElementById('detail-lyrics');
+      const lyricsWrap = document.getElementById('detail-lyrics-wrap');
+      if (lyricsData.length) {
+        lyricsWrap.style.display = 'block';
+        const colors = { intro: ['#004f54', '#74f5ff'], verse: ['#1a3a6b', '#93c5fd'], chorus: ['#6b0038', '#ffb0cc'], bridge: ['#3b1a6b', '#d8b4fe'], break: ['#5c3200', '#fdba74'], outro: ['#2a2a2a', '#c6c5d6'] };
+        lyricsEl.innerHTML = lyricsData.map(sec => {
+          const [bg, fg] = colors[sec.type] || ['#2a2a2a', '#c6c5d6'];
+          return `
         <div class="lyrics-section" style="border:1px solid ${bg}; border-radius:0.75rem; overflow:hidden; margin-bottom:14px;">
           <div class="lyrics-section-header" style="background:${bg}; color:${fg};">
             ${escHtml(BLOCK_LABELS[sec.type] || sec.type)}
@@ -733,42 +1053,42 @@ async function openSongDetail(songId) {
           <div class="lyrics-section-body" style="color:#e5e2e1;">${escHtml(sec.content || '')}</div>
         </div>
       `;
-    }).join('');
-  } else {
-    lyricsWrap.style.display = 'none';
-  }
+        }).join('');
+      } else {
+        lyricsWrap.style.display = 'none';
+      }
 
-  // Notes
-  if (song.notes) {
-    document.getElementById('detail-notes-wrap').style.display = 'block';
-    document.getElementById('detail-notes').textContent = song.notes;
-  } else {
-    document.getElementById('detail-notes-wrap').style.display = 'none';
-  }
+      // Notes
+      if (song.notes) {
+        document.getElementById('detail-notes-wrap').style.display = 'block';
+        document.getElementById('detail-notes').textContent = song.notes;
+      } else {
+        document.getElementById('detail-notes-wrap').style.display = 'none';
+      }
 
-  showScreen('screen-detail');
-  loadAudioTracks(songId);
-  loadChordSheets(songId);
-}
+      showScreen('screen-detail');
+      loadAudioTracks(songId);
+      loadChordSheets(songId);
+    }
 
-// ─── Audio Tracks ─────────────────────────────────────────────────────────────
-async function loadAudioTracks(songId) {
-  const container = document.getElementById('audio-list');
-  container.innerHTML = `<div style="padding:16px; color:#908f9f; font-size:14px; display:flex; align-items:center; gap:10px;"><div class="spinner"></div> Loading…</div>`;
+    // ─── Audio Tracks ─────────────────────────────────────────────────────────────
+    async function loadAudioTracks(songId) {
+      const container = document.getElementById('audio-list');
+      container.innerHTML = `<div style="padding:16px; color:#908f9f; font-size:14px; display:flex; align-items:center; gap:10px;"><div class="spinner"></div> Loading…</div>`;
 
-  const { data, error } = await db.from('audio_tracks').select('*').eq('song_id', songId).order('sort_order').order('created_at');
-  if (error) { container.innerHTML = '<div class="empty-state"><span>Failed to load</span></div>'; return; }
+      const { data, error } = await db.from('audio_tracks').select('*').eq('song_id', songId).order('sort_order').order('created_at');
+      if (error) { container.innerHTML = '<div class="empty-state"><span>Failed to load</span></div>'; return; }
 
-  if (!data.length) {
-    container.innerHTML = `
+      if (!data.length) {
+        container.innerHTML = `
       <div class="empty-state" style="padding:24px;">
         <span class="material-symbols-outlined" style="font-size:36px; color:#454653;">audio_file</span>
         <span style="font-size:14px;">No audio tracks yet</span>
       </div>`;
-    return;
-  }
+        return;
+      }
 
-  container.innerHTML = data.map(track => `
+      container.innerHTML = data.map(track => `
     <div class="track-card" data-id="${track.id}" data-url="${escHtml(track.url)}" draggable="true">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
         <div style="display:flex; align-items:center; gap:8px; flex:1; min-width:0;">
@@ -788,81 +1108,81 @@ async function loadAudioTracks(songId) {
     </div>
   `).join('');
 
-  initDragAndDrop(container, 'audio_tracks');
-}
+      initDragAndDrop(container, 'audio_tracks');
+    }
 
-async function deleteAudioTrack(trackId, url) {
-  showConfirm('Delete this audio track?', async () => {
-    const path = url.split('/storage/v1/object/public/audio/')[1];
-    if (path) await db.storage.from('audio').remove([decodeURIComponent(path)]);
-    const { error } = await db.from('audio_tracks').delete().eq('id', trackId);
-    if (error) { showToast('Failed to delete track'); return; }
-    showToast('Track deleted');
-    loadAudioTracks(currentSongId);
-  });
-}
+    async function deleteAudioTrack(trackId, url) {
+      showConfirm('Delete this audio track?', async () => {
+        const path = url.split('/storage/v1/object/public/audio/')[1];
+        if (path) await db.storage.from('audio').remove([decodeURIComponent(path)]);
+        const { error } = await db.from('audio_tracks').delete().eq('id', trackId);
+        if (error) { showToast('Failed to delete track'); return; }
+        showToast('Track deleted');
+        loadAudioTracks(currentSongId);
+      });
+    }
 
-// ─── Audio Upload ─────────────────────────────────────────────────────────────
-document.getElementById('btn-add-audio').onclick = () => {
-  document.getElementById('audio-track-name').value = '';
-  document.getElementById('audio-file-input').value = '';
-  document.getElementById('audio-upload-progress').style.display = 'none';
-  document.getElementById('audio-modal-overlay').style.display = 'flex';
-};
-document.getElementById('btn-close-audio-modal').onclick = () => {
-  document.getElementById('audio-modal-overlay').style.display = 'none';
-};
+    // ─── Audio Upload ─────────────────────────────────────────────────────────────
+    document.getElementById('btn-add-audio').onclick = () => {
+      document.getElementById('audio-track-name').value = '';
+      document.getElementById('audio-file-input').value = '';
+      document.getElementById('audio-upload-progress').style.display = 'none';
+      document.getElementById('audio-modal-overlay').style.display = 'flex';
+    };
+    document.getElementById('btn-close-audio-modal').onclick = () => {
+      document.getElementById('audio-modal-overlay').style.display = 'none';
+    };
 
-document.getElementById('btn-upload-audio').onclick = async () => {
-  const name = document.getElementById('audio-track-name').value.trim();
-  const file = document.getElementById('audio-file-input').files[0];
-  if (!file) { showToast('Please select an audio file'); return; }
+    document.getElementById('btn-upload-audio').onclick = async () => {
+      const name = document.getElementById('audio-track-name').value.trim();
+      const file = document.getElementById('audio-file-input').files[0];
+      if (!file) { showToast('Please select an audio file'); return; }
 
-  const progress = document.getElementById('audio-upload-progress');
-  progress.style.display = 'flex';
+      const progress = document.getElementById('audio-upload-progress');
+      progress.style.display = 'flex';
 
-  const fileName = `${currentSongId}/${Date.now()}_${file.name}`;
-  const { data: uploadData, error: uploadErr } = await db.storage.from('audio').upload(fileName, file, { upsert: true });
+      const fileName = `${currentSongId}/${Date.now()}_${file.name}`;
+      const { data: uploadData, error: uploadErr } = await db.storage.from('audio').upload(fileName, file, { upsert: true });
 
-  if (uploadErr) { showToast('Upload failed: ' + uploadErr.message); progress.style.display = 'none'; return; }
+      if (uploadErr) { showToast('Upload failed: ' + uploadErr.message); progress.style.display = 'none'; return; }
 
-  const { data: urlData } = db.storage.from('audio').getPublicUrl(fileName);
-  const publicUrl = urlData.publicUrl;
+      const { data: urlData } = db.storage.from('audio').getPublicUrl(fileName);
+      const publicUrl = urlData.publicUrl;
 
-  const { error: dbErr } = await db.from('audio_tracks').insert({
-    song_id: currentSongId,
-    name: name || file.name,
-    url: publicUrl
-  });
+      const { error: dbErr } = await db.from('audio_tracks').insert({
+        song_id: currentSongId,
+        name: name || file.name,
+        url: publicUrl
+      });
 
-  progress.style.display = 'none';
-  if (dbErr) { showToast('Failed to save track record'); return; }
+      progress.style.display = 'none';
+      if (dbErr) { showToast('Failed to save track record'); return; }
 
-  document.getElementById('audio-modal-overlay').style.display = 'none';
-  showToast('Audio track uploaded!');
-  loadAudioTracks(currentSongId);
-};
+      document.getElementById('audio-modal-overlay').style.display = 'none';
+      showToast('Audio track uploaded!');
+      loadAudioTracks(currentSongId);
+    };
 
-// ─── Chord Sheets ─────────────────────────────────────────────────────────────
-async function loadChordSheets(songId) {
-  const container = document.getElementById('chord-list');
-  container.innerHTML = `<div style="padding:16px; color:#908f9f; font-size:14px; display:flex; align-items:center; gap:10px;"><div class="spinner"></div> Loading…</div>`;
+    // ─── Chord Sheets ─────────────────────────────────────────────────────────────
+    async function loadChordSheets(songId) {
+      const container = document.getElementById('chord-list');
+      container.innerHTML = `<div style="padding:16px; color:#908f9f; font-size:14px; display:flex; align-items:center; gap:10px;"><div class="spinner"></div> Loading…</div>`;
 
-  const { data, error } = await db.from('chord_sheets').select('*').eq('song_id', songId).order('sort_order').order('created_at');
-  if (error) { container.innerHTML = '<div class="empty-state"><span>Failed to load</span></div>'; return; }
+      const { data, error } = await db.from('chord_sheets').select('*').eq('song_id', songId).order('sort_order').order('created_at');
+      if (error) { container.innerHTML = '<div class="empty-state"><span>Failed to load</span></div>'; return; }
 
-  if (!data.length) {
-    container.innerHTML = `
+      if (!data.length) {
+        container.innerHTML = `
       <div class="empty-state" style="padding:24px;">
         <span class="material-symbols-outlined" style="font-size:36px; color:#454653;">music_note</span>
         <span style="font-size:14px;">No chord sheets yet</span>
       </div>`;
-    return;
-  }
+        return;
+      }
 
-  container.innerHTML = data.map(sheet => {
-    const isPdf = sheet.url && sheet.url.toLowerCase().endsWith('.pdf');
-    return `
+      container.innerHTML = data.map(sheet => {
+        const isPdf = sheet.url && sheet.url.toLowerCase().endsWith('.pdf');
+        return `
       <div class="track-card" data-id="${sheet.id}" data-url="${escHtml(sheet.url)}" draggable="true">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
           <div style="display:flex; align-items:center; gap:8px; flex:1; min-width:0;">
@@ -885,270 +1205,283 @@ async function loadChordSheets(songId) {
         ${!isPdf ? `<img src="${escHtml(sheet.url)}" alt="${escHtml(sheet.name || '')}" style="width:100%; border-radius:0.5rem; border:1px solid #454653; max-height:260px; object-fit:contain; background:#0e0e0e;" loading="lazy"/>` : ''}
       </div>
     `;
-  }).join('');
+      }).join('');
 
-  initDragAndDrop(container, 'chord_sheets');
-}
+      initDragAndDrop(container, 'chord_sheets');
+    }
 
-async function deleteChordSheet(sheetId, url) {
-  showConfirm('Delete this chord sheet?', async () => {
-    const path = url.split('/storage/v1/object/public/chords/')[1];
-    if (path) await db.storage.from('chords').remove([decodeURIComponent(path)]);
-    const { error } = await db.from('chord_sheets').delete().eq('id', sheetId);
-    if (error) { showToast('Failed to delete sheet'); return; }
-    showToast('Chord sheet deleted');
-    loadChordSheets(currentSongId);
-  });
-}
+    async function deleteChordSheet(sheetId, url) {
+      showConfirm('Delete this chord sheet?', async () => {
+        const path = url.split('/storage/v1/object/public/chords/')[1];
+        if (path) await db.storage.from('chords').remove([decodeURIComponent(path)]);
+        const { error } = await db.from('chord_sheets').delete().eq('id', sheetId);
+        if (error) { showToast('Failed to delete sheet'); return; }
+        showToast('Chord sheet deleted');
+        loadChordSheets(currentSongId);
+      });
+    }
 
-// ─── Chord Upload ─────────────────────────────────────────────────────────────
-document.getElementById('btn-add-chord').onclick = () => {
-  document.getElementById('chord-sheet-name').value = '';
-  document.getElementById('chord-file-input').value = '';
-  document.getElementById('chord-upload-progress').style.display = 'none';
-  document.getElementById('chord-modal-overlay').style.display = 'flex';
-};
-document.getElementById('btn-close-chord-modal').onclick = () => {
-  document.getElementById('chord-modal-overlay').style.display = 'none';
-};
+    // ─── Chord Upload ─────────────────────────────────────────────────────────────
+    document.getElementById('btn-add-chord').onclick = () => {
+      document.getElementById('chord-sheet-name').value = '';
+      document.getElementById('chord-file-input').value = '';
+      document.getElementById('chord-upload-progress').style.display = 'none';
+      document.getElementById('chord-modal-overlay').style.display = 'flex';
+    };
+    document.getElementById('btn-close-chord-modal').onclick = () => {
+      document.getElementById('chord-modal-overlay').style.display = 'none';
+    };
 
-document.getElementById('btn-upload-chord').onclick = async () => {
-  const name = document.getElementById('chord-sheet-name').value.trim();
-  const file = document.getElementById('chord-file-input').files[0];
-  if (!file) { showToast('Please select a file'); return; }
+    document.getElementById('btn-upload-chord').onclick = async () => {
+      const name = document.getElementById('chord-sheet-name').value.trim();
+      const file = document.getElementById('chord-file-input').files[0];
+      if (!file) { showToast('Please select a file'); return; }
 
-  const progress = document.getElementById('chord-upload-progress');
-  progress.style.display = 'flex';
+      const progress = document.getElementById('chord-upload-progress');
+      progress.style.display = 'flex';
 
-  const fileName = `${currentSongId}/${Date.now()}_${file.name}`;
-  const { error: uploadErr } = await db.storage.from('chords').upload(fileName, file, { upsert: true });
+      const fileName = `${currentSongId}/${Date.now()}_${file.name}`;
+      const { error: uploadErr } = await db.storage.from('chords').upload(fileName, file, { upsert: true });
 
-  if (uploadErr) { showToast('Upload failed: ' + uploadErr.message); progress.style.display = 'none'; return; }
+      if (uploadErr) { showToast('Upload failed: ' + uploadErr.message); progress.style.display = 'none'; return; }
 
-  const { data: urlData } = db.storage.from('chords').getPublicUrl(fileName);
+      const { data: urlData } = db.storage.from('chords').getPublicUrl(fileName);
 
-  const { error: dbErr } = await db.from('chord_sheets').insert({
-    song_id: currentSongId,
-    name: name || file.name,
-    url: urlData.publicUrl
-  });
+      const { error: dbErr } = await db.from('chord_sheets').insert({
+        song_id: currentSongId,
+        name: name || file.name,
+        url: urlData.publicUrl
+      });
 
-  progress.style.display = 'none';
-  if (dbErr) { showToast('Failed to save chord sheet record'); return; }
+      progress.style.display = 'none';
+      if (dbErr) { showToast('Failed to save chord sheet record'); return; }
 
-  document.getElementById('chord-modal-overlay').style.display = 'none';
-  showToast('Chord sheet uploaded!');
-  loadChordSheets(currentSongId);
-};
+      document.getElementById('chord-modal-overlay').style.display = 'none';
+      showToast('Chord sheet uploaded!');
+      loadChordSheets(currentSongId);
+    };
 
-// ─── Inline Rename ────────────────────────────────────────────────────────────
-function startEditTrackName(btn, itemId, type) {
-  const card = btn.closest('.track-card');
-  const nameSpan = card.querySelector('.track-name-display');
-  const currentName = nameSpan.textContent;
+    // ─── Inline Rename ────────────────────────────────────────────────────────────
+    function startEditTrackName(btn, itemId, type) {
+      const card = btn.closest('.track-card');
+      const nameSpan = card.querySelector('.track-name-display');
+      const currentName = nameSpan.textContent;
 
-  const input = document.createElement('input');
-  input.className = 'inline-edit-input';
-  input.value = currentName;
+      const input = document.createElement('input');
+      input.className = 'inline-edit-input';
+      input.value = currentName;
 
-  nameSpan.replaceWith(input);
-  input.focus();
-  input.select();
+      nameSpan.replaceWith(input);
+      input.focus();
+      input.select();
 
-  async function saveRename() {
-    const newName = input.value.trim() || currentName;
-    const table = type === 'audio' ? 'audio_tracks' : 'chord_sheets';
-    const { error } = await db.from(table).update({ name: newName }).eq('id', itemId);
-    if (error) { showToast('Rename failed'); }
-    else { showToast('Renamed'); }
-    type === 'audio' ? loadAudioTracks(currentSongId) : loadChordSheets(currentSongId);
-  }
-
-  input.addEventListener('blur', saveRename);
-  input.addEventListener('keydown', e => {
-    if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
-    if (e.key === 'Escape') { input.value = currentName; input.blur(); }
-  });
-}
-
-// ─── Drag and Drop Reorder ────────────────────────────────────────────────────
-function initDragAndDrop(container, table) {
-  let dragSrc = null;
-
-  container.querySelectorAll('.track-card').forEach(card => {
-    // Desktop drag
-    card.addEventListener('dragstart', e => {
-      dragSrc = card;
-      card.classList.add('dragging');
-      e.dataTransfer.effectAllowed = 'move';
-    });
-    card.addEventListener('dragend', () => {
-      card.classList.remove('dragging');
-      container.querySelectorAll('.track-card').forEach(c => c.classList.remove('drag-over'));
-      saveSortOrder(container, table);
-    });
-    card.addEventListener('dragover', e => {
-      e.preventDefault();
-      if (card !== dragSrc) {
-        container.querySelectorAll('.track-card').forEach(c => c.classList.remove('drag-over'));
-        card.classList.add('drag-over');
-        const cards = [...container.querySelectorAll('.track-card')];
-        const srcIdx = cards.indexOf(dragSrc);
-        const tgtIdx = cards.indexOf(card);
-        if (srcIdx < tgtIdx) card.after(dragSrc);
-        else card.before(dragSrc);
+      async function saveRename() {
+        const newName = input.value.trim() || currentName;
+        const table = type === 'audio' ? 'audio_tracks' : 'chord_sheets';
+        const { error } = await db.from(table).update({ name: newName }).eq('id', itemId);
+        if (error) { showToast('Rename failed'); }
+        else { showToast('Renamed'); }
+        type === 'audio' ? loadAudioTracks(currentSongId) : loadChordSheets(currentSongId);
       }
-    });
-    card.addEventListener('drop', e => { e.preventDefault(); });
 
-    // Mobile touch drag
-    let touchStartY = 0;
-    card.addEventListener('touchstart', e => {
-      if (!e.target.closest('.drag-handle-btn')) return;
-      dragSrc = card;
-      touchStartY = e.touches[0].clientY;
-      card.classList.add('dragging');
-    }, { passive: true });
+      input.addEventListener('blur', saveRename);
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+        if (e.key === 'Escape') { input.value = currentName; input.blur(); }
+      });
+    }
 
-    card.addEventListener('touchmove', e => {
-      if (!dragSrc) return;
-      e.preventDefault();
-      const touch = e.touches[0];
-      const el = document.elementFromPoint(touch.clientX, touch.clientY);
-      const target = el?.closest('.track-card');
-      if (target && target !== dragSrc) {
-        container.querySelectorAll('.track-card').forEach(c => c.classList.remove('drag-over'));
-        target.classList.add('drag-over');
-        const cards = [...container.querySelectorAll('.track-card')];
-        const srcIdx = cards.indexOf(dragSrc);
-        const tgtIdx = cards.indexOf(target);
-        if (srcIdx < tgtIdx) target.after(dragSrc);
-        else target.before(dragSrc);
+    // ─── Drag and Drop Reorder ────────────────────────────────────────────────────
+    function initDragAndDrop(container, table) {
+      let dragSrc = null;
+
+      container.querySelectorAll('.track-card').forEach(card => {
+        // Desktop drag
+        card.addEventListener('dragstart', e => {
+          dragSrc = card;
+          card.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+        });
+        card.addEventListener('dragend', () => {
+          card.classList.remove('dragging');
+          container.querySelectorAll('.track-card').forEach(c => c.classList.remove('drag-over'));
+          saveSortOrder(container, table);
+        });
+        card.addEventListener('dragover', e => {
+          e.preventDefault();
+          if (card !== dragSrc) {
+            container.querySelectorAll('.track-card').forEach(c => c.classList.remove('drag-over'));
+            card.classList.add('drag-over');
+            const cards = [...container.querySelectorAll('.track-card')];
+            const srcIdx = cards.indexOf(dragSrc);
+            const tgtIdx = cards.indexOf(card);
+            if (srcIdx < tgtIdx) card.after(dragSrc);
+            else card.before(dragSrc);
+          }
+        });
+        card.addEventListener('drop', e => { e.preventDefault(); });
+
+        // Mobile touch drag
+        let touchStartY = 0;
+        card.addEventListener('touchstart', e => {
+          if (!e.target.closest('.drag-handle-btn')) return;
+          dragSrc = card;
+          touchStartY = e.touches[0].clientY;
+          card.classList.add('dragging');
+        }, { passive: true });
+
+        card.addEventListener('touchmove', e => {
+          if (!dragSrc) return;
+          e.preventDefault();
+          const touch = e.touches[0];
+          const el = document.elementFromPoint(touch.clientX, touch.clientY);
+          const target = el?.closest('.track-card');
+          if (target && target !== dragSrc) {
+            container.querySelectorAll('.track-card').forEach(c => c.classList.remove('drag-over'));
+            target.classList.add('drag-over');
+            const cards = [...container.querySelectorAll('.track-card')];
+            const srcIdx = cards.indexOf(dragSrc);
+            const tgtIdx = cards.indexOf(target);
+            if (srcIdx < tgtIdx) target.after(dragSrc);
+            else target.before(dragSrc);
+          }
+        }, { passive: false });
+
+        card.addEventListener('touchend', () => {
+          if (!dragSrc) return;
+          dragSrc.classList.remove('dragging');
+          container.querySelectorAll('.track-card').forEach(c => c.classList.remove('drag-over'));
+          saveSortOrder(container, table);
+          dragSrc = null;
+        });
+      });
+    }
+
+    async function saveSortOrder(container, table) {
+      const cards = [...container.querySelectorAll('.track-card')];
+      const updates = cards.map((card, index) => ({ id: card.dataset.id, sort_order: index }));
+      await Promise.all(updates.map(u => db.from(table).update({ sort_order: u.sort_order }).eq('id', u.id)));
+    }
+
+    // ─── Section block config ─────────────────────────────────────────────────────
+    const BLOCK_TYPES = ['intro', 'verse', 'chorus', 'bridge', 'break', 'outro'];
+    const BLOCK_LABELS = { intro: 'Intro', verse: 'Verse', chorus: 'Chorus', bridge: 'Bridge', break: 'Break', outro: 'Outro' };
+
+    // ─── Structure Builder ────────────────────────────────────────────────────────
+    let structureBlocks = []; // array of strings e.g. ['intro','verse','chorus']
+
+    function addStructureBlock(type) {
+      structureBlocks.push({ type, repeat: 2 });
+      renderStructureBuilder();
+    }
+
+    function removeStructureBlock(index) {
+      structureBlocks.splice(index, 1);
+      renderStructureBuilder();
+    }
+
+    function changeRepeat(index, delta) {
+      structureBlocks[index].repeat = Math.max(1, structureBlocks[index].repeat + delta);
+      renderStructureBuilder();
+    }
+
+    function renderStructureBuilder() {
+      const container = document.getElementById('structure-builder');
+      if (!structureBlocks.length) {
+        activeStructureIndex = null;
+        container.innerHTML = '<span id="structure-placeholder" style="color:#908f9f; font-size:14px;">Tap blocks above to build the structure…</span>';
+        return;
       }
-    }, { passive: false });
-
-    card.addEventListener('touchend', () => {
-      if (!dragSrc) return;
-      dragSrc.classList.remove('dragging');
-      container.querySelectorAll('.track-card').forEach(c => c.classList.remove('drag-over'));
-      saveSortOrder(container, table);
-      dragSrc = null;
-    });
-  });
-}
-
-async function saveSortOrder(container, table) {
-  const cards = [...container.querySelectorAll('.track-card')];
-  const updates = cards.map((card, index) => ({ id: card.dataset.id, sort_order: index }));
-  await Promise.all(updates.map(u => db.from(table).update({ sort_order: u.sort_order }).eq('id', u.id)));
-}
-
-// ─── Section block config ─────────────────────────────────────────────────────
-const BLOCK_TYPES = ['intro','verse','chorus','bridge','break','outro'];
-const BLOCK_LABELS = { intro:'Intro', verse:'Verse', chorus:'Chorus', bridge:'Bridge', break:'Break', outro:'Outro' };
-
-// ─── Structure Builder ────────────────────────────────────────────────────────
-let structureBlocks = []; // array of strings e.g. ['intro','verse','chorus']
-
-function addStructureBlock(type) {
-  structureBlocks.push(type);
-  renderStructureBuilder();
-}
-
-function removeStructureBlock(index) {
-  structureBlocks.splice(index, 1);
-  renderStructureBuilder();
-}
-
-function renderStructureBuilder() {
-  const container = document.getElementById('structure-builder');
-  if (!structureBlocks.length) {
-    container.innerHTML = '<span id="structure-placeholder" style="color:#908f9f; font-size:14px;">Tap blocks above to build the structure…</span>';
-    return;
-  }
-  container.innerHTML = structureBlocks.map((type, i) => `
-    <span class="sblock sblock-${type}" draggable="true" data-index="${i}"
-      style="cursor:grab; position:relative;"
-      title="Drag to reorder · Tap × to remove">
-      ${escHtml(BLOCK_LABELS[type] || type)}
-      <span onclick="removeStructureBlock(${i})" style="font-size:14px; opacity:0.7; cursor:pointer; margin-left:2px;">×</span>
+      container.innerHTML = structureBlocks.map((b, i) => `
+    <span class="sblock sblock-${b.type}" data-index="${i}" draggable="true"
+      style="cursor:pointer; position:relative; user-select:none; gap:6px;">
+      ${escHtml(BLOCK_LABELS[b.type] || b.type)} ×${b.repeat}
+      ${activeStructureIndex === i ? `
+        <span onclick="event.stopPropagation(); changeRepeat(${i}, -1)" style="padding:0 4px; font-size:16px; font-weight:700; cursor:pointer; opacity:0.8;">−</span>
+        <span onclick="event.stopPropagation(); changeRepeat(${i}, +1)" style="padding:0 4px; font-size:16px; font-weight:700; cursor:pointer; opacity:0.8;">+</span>
+        <span onclick="event.stopPropagation(); removeStructureBlock(${i})" style="padding:0 4px; font-size:14px; opacity:0.7; cursor:pointer;">×</span>
+      ` : ''}
     </span>
   `).join('');
 
-  // Drag reorder for structure blocks
-  let dragIdx = null;
-  container.querySelectorAll('.sblock').forEach(el => {
-    el.addEventListener('dragstart', e => {
-      dragIdx = parseInt(el.dataset.index);
-      el.style.opacity = '0.4';
-      e.dataTransfer.effectAllowed = 'move';
-    });
-    el.addEventListener('dragend', () => { el.style.opacity = '1'; });
-    el.addEventListener('dragover', e => {
-      e.preventDefault();
-      const targetIdx = parseInt(el.dataset.index);
-      if (dragIdx !== null && dragIdx !== targetIdx) {
-        const moved = structureBlocks.splice(dragIdx, 1)[0];
-        structureBlocks.splice(targetIdx, 0, moved);
-        dragIdx = targetIdx;
-        renderStructureBuilder();
-      }
-    });
+      container.querySelectorAll('.sblock').forEach(el => {
+        el.addEventListener('click', e => {
+          const i = parseInt(el.dataset.index);
+          activeStructureIndex = activeStructureIndex === i ? null : i;
+          renderStructureBuilder();
+        });
 
-    // Touch reorder
-    el.addEventListener('touchstart', e => {
-      dragIdx = parseInt(el.dataset.index);
-      el.style.opacity = '0.4';
-    }, { passive: true });
-    el.addEventListener('touchend', () => { el.style.opacity = '1'; dragIdx = null; });
-    el.addEventListener('touchmove', e => {
-      e.preventDefault();
-      const touch = e.touches[0];
-      const target = document.elementFromPoint(touch.clientX, touch.clientY)?.closest('.sblock');
-      if (!target || !target.dataset.index) return;
-      const targetIdx = parseInt(target.dataset.index);
-      if (dragIdx !== null && dragIdx !== targetIdx) {
-        const moved = structureBlocks.splice(dragIdx, 1)[0];
-        structureBlocks.splice(targetIdx, 0, moved);
-        dragIdx = targetIdx;
-        renderStructureBuilder();
-      }
-    }, { passive: false });
-  });
-}
+        // drag reorder (same as before)
+        el.addEventListener('dragstart', e => {
+          dragIdx = parseInt(el.dataset.index);
+          el.style.opacity = '0.4';
+          e.dataTransfer.effectAllowed = 'move';
+        });
+        el.addEventListener('dragend', () => { el.style.opacity = '1'; });
+        el.addEventListener('dragover', e => {
+          e.preventDefault();
+          const targetIdx = parseInt(el.dataset.index);
+          if (dragIdx !== null && dragIdx !== targetIdx) {
+            const moved = structureBlocks.splice(dragIdx, 1)[0];
+            structureBlocks.splice(targetIdx, 0, moved);
+            dragIdx = targetIdx;
+            renderStructureBuilder();
+          }
+        });
 
-// ─── Lyrics Builder ───────────────────────────────────────────────────────────
-let lyricsSections = []; // array of {type, content}
+        el.addEventListener('touchstart', e => {
+          dragIdx = parseInt(el.dataset.index);
+          el.style.opacity = '0.4';
+        }, { passive: true });
+        el.addEventListener('touchend', () => { el.style.opacity = '1'; dragIdx = null; });
+        el.addEventListener('touchmove', e => {
+          e.preventDefault();
+          const touch = e.touches[0];
+          const target = document.elementFromPoint(touch.clientX, touch.clientY)?.closest('.sblock');
+          if (!target || !target.dataset.index) return;
+          const targetIdx = parseInt(target.dataset.index);
+          if (dragIdx !== null && dragIdx !== targetIdx) {
+            const moved = structureBlocks.splice(dragIdx, 1)[0];
+            structureBlocks.splice(targetIdx, 0, moved);
+            dragIdx = targetIdx;
+            renderStructureBuilder();
+          }
+        }, { passive: false });
+      });
+    }
 
-function addLyricsSection(type = 'verse', content = '') {
-  lyricsSections.push({ type, content });
-  renderLyricsBuilder();
-}
+    // ─── Lyrics Builder ───────────────────────────────────────────────────────────
+    let lyricsSections = []; // array of {type, content}
 
-function removeLyricsSection(index) {
-  lyricsSections.splice(index, 1);
-  renderLyricsBuilder();
-}
+    function addLyricsSection(type = 'verse', content = '') {
+      lyricsSections.push({ type, content });
+      renderLyricsBuilder();
+    }
 
-function moveLyricsSection(index, dir) {
-  const newIndex = index + dir;
-  if (newIndex < 0 || newIndex >= lyricsSections.length) return;
-  [lyricsSections[index], lyricsSections[newIndex]] = [lyricsSections[newIndex], lyricsSections[index]];
-  renderLyricsBuilder();
-}
+    function removeLyricsSection(index) {
+      lyricsSections.splice(index, 1);
+      renderLyricsBuilder();
+    }
 
-function renderLyricsBuilder() {
-  const container = document.getElementById('lyrics-builder');
-  container.innerHTML = lyricsSections.map((sec, i) => `
+    function moveLyricsSection(index, dir) {
+      const newIndex = index + dir;
+      if (newIndex < 0 || newIndex >= lyricsSections.length) return;
+      [lyricsSections[index], lyricsSections[newIndex]] = [lyricsSections[newIndex], lyricsSections[index]];
+      renderLyricsBuilder();
+    }
+
+    function renderLyricsBuilder() {
+      const container = document.getElementById('lyrics-builder');
+      container.innerHTML = lyricsSections.map((sec, i) => `
     <div style="border:1px solid #454653; border-radius:0.75rem; overflow:hidden;">
-<div class="lyrics-section-header" style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:${SECTION_COLORS[sec.type]?.[0]||'#2a2a2a'}; color:${SECTION_COLORS[sec.type]?.[1]||'#c6c5d6'};">        <select onchange="lyricsSections[${i}].type=this.value; renderLyricsBuilder()" style="background:transparent !important; border:none !important; padding:2px 4px !important; font-size:12px !important; font-weight:700 !important; color:inherit !important; width:auto !important; cursor:pointer; text-transform:uppercase; letter-spacing:0.06em;">
-          ${BLOCK_TYPES.map(t => `<option value="${t}" ${sec.type===t?'selected':''} style="background:#201f1f; color:#e5e2e1;">${BLOCK_LABELS[t]}</option>`).join('')}
+<div class="lyrics-section-header" style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:${SECTION_COLORS[sec.type]?.[0] || '#2a2a2a'}; color:${SECTION_COLORS[sec.type]?.[1] || '#c6c5d6'};">        <select onchange="lyricsSections[${i}].type=this.value; renderLyricsBuilder()" style="background:transparent !important; border:none !important; padding:2px 4px !important; font-size:12px !important; font-weight:700 !important; color:inherit !important; width:auto !important; cursor:pointer; text-transform:uppercase; letter-spacing:0.06em;">
+          ${BLOCK_TYPES.map(t => `<option value="${t}" ${sec.type === t ? 'selected' : ''} style="background:#201f1f; color:#e5e2e1;">${BLOCK_LABELS[t]}</option>`).join('')}
         </select>
         <div style="display:flex; gap:2px;">
-          <button type="button" class="icon-btn" style="width:28px;height:28px;" onclick="moveLyricsSection(${i},-1)" ${i===0?'disabled':''}>
+          <button type="button" class="icon-btn" style="width:28px;height:28px;" onclick="moveLyricsSection(${i},-1)" ${i === 0 ? 'disabled' : ''}>
             <span class="material-symbols-outlined" style="font-size:16px;">arrow_upward</span>
           </button>
-          <button type="button" class="icon-btn" style="width:28px;height:28px;" onclick="moveLyricsSection(${i},1)" ${i===lyricsSections.length-1?'disabled':''}>
+          <button type="button" class="icon-btn" style="width:28px;height:28px;" onclick="moveLyricsSection(${i},1)" ${i === lyricsSections.length - 1 ? 'disabled' : ''}>
             <span class="material-symbols-outlined" style="font-size:16px;">arrow_downward</span>
           </button>
           <button type="button" class="icon-btn" style="width:28px;height:28px;" onclick="removeLyricsSection(${i})">
@@ -1160,138 +1493,146 @@ function renderLyricsBuilder() {
     </div>
   `).join('');
 
-  // Colors are applied inline in the template above — nothing needed here
-}
+      // Colors are applied inline in the template above — nothing needed here
+    }
 
-// ─── Add / Edit Song Modal ────────────────────────────────────────────────────
-function openSongModal(song = null) {
-  editingSongId = song ? song.id : null;
-  document.getElementById('modal-title').textContent = song ? 'Edit Song' : 'Add Song';
-  document.getElementById('field-name').value    = song?.name   || '';
-  document.getElementById('field-key').value     = song?.key    || '';
-  document.getElementById('field-bpm').value     = song?.bpm    || '';
-  document.getElementById('field-rhythm').value  = song?.rhythm || '';
-  document.getElementById('field-notes').value   = song?.notes  || '';
+    // ─── Add / Edit Song Modal ────────────────────────────────────────────────────
+    function openSongModal(song = null) {
+      editingSongId = song ? song.id : null;
+      document.getElementById('modal-title').textContent = song ? 'Edit Song' : 'Add Song';
+      document.getElementById('field-name').value = song?.name || '';
+      document.getElementById('field-key').value = song?.key || '';
+      document.getElementById('field-bpm').value = song?.bpm || '';
+      document.getElementById('field-rhythm').value = song?.rhythm || '';
+      document.getElementById('field-notes').value = song?.notes || '';
 
-  structureBlocks = safeJsonArray(song?.structure);
-  renderStructureBuilder();
+      structureBlocks = safeJsonArray(song?.structure);
+      renderStructureBuilder();
 
-  lyricsSections = safeJsonArray(song?.lyrics);
-  renderLyricsBuilder();
+      lyricsSections = safeJsonArray(song?.lyrics);
+      renderLyricsBuilder();
 
-  document.getElementById('modal-overlay').classList.add('open');
-}
+      document.getElementById('modal-overlay').classList.add('open');
+    }
 
-function closeSongModal() {
-  document.getElementById('modal-overlay').classList.remove('open');
-  editingSongId = null;
-}
+    function closeSongModal() {
+      document.getElementById('modal-overlay').classList.remove('open');
+      editingSongId = null;
+    }
 
-document.getElementById('btn-add-song').onclick = () => openSongModal();
-document.getElementById('btn-close-modal').onclick = closeSongModal;
-document.getElementById('btn-cancel-modal').onclick = closeSongModal;
+    document.getElementById('btn-add-song').onclick = () => openSongModal();
+    document.getElementById('btn-close-modal').onclick = closeSongModal;
+    document.getElementById('btn-cancel-modal').onclick = closeSongModal;
 
-document.getElementById('btn-edit-song').onclick = () => {
-  const song = allSongs.find(s => s.id === currentSongId);
-  if (song) openSongModal(song);
-};
+    document.getElementById('btn-edit-song').onclick = () => {
+      const song = allSongs.find(s => s.id === currentSongId);
+      if (song) openSongModal(song);
+    };
 
-document.getElementById('btn-save-song').onclick = async () => {
-  const name = document.getElementById('field-name').value.trim();
-  if (!name) { showToast('Song name is required'); return; }
+    document.getElementById('btn-save-song').onclick = async () => {
+      const name = document.getElementById('field-name').value.trim();
+      if (!name) { showToast('Song name is required'); return; }
 
-  const payload = {
-    name,
-    key:       document.getElementById('field-key').value.trim()    || null,
-    bpm:       parseInt(document.getElementById('field-bpm').value) || null,
-    rhythm:    document.getElementById('field-rhythm').value.trim() || null,
-    structure: structureBlocks.length ? structureBlocks : null,
-    lyrics:    lyricsSections.length  ? lyricsSections  : null,
-    notes:     document.getElementById('field-notes').value.trim()  || null,
-  };
+      const payload = {
+        name,
+        key: document.getElementById('field-key').value.trim() || null,
+        bpm: parseInt(document.getElementById('field-bpm').value) || null,
+        rhythm: document.getElementById('field-rhythm').value.trim() || null,
+        structure: structureBlocks.length ? structureBlocks : null,
+        lyrics: lyricsSections.length ? lyricsSections : null,
+        notes: document.getElementById('field-notes').value.trim() || null,
+      };
 
-  const btn = document.getElementById('btn-save-song');
-  btn.disabled = true;
-  btn.innerHTML = '<div class="spinner"></div> Saving…';
+      const btn = document.getElementById('btn-save-song');
+      btn.disabled = true;
+      btn.innerHTML = '<div class="spinner"></div> Saving…';
 
-  let error;
-  if (editingSongId) {
-    ({ error } = await db.from('songs').update(payload).eq('id', editingSongId));
-  } else {
-    ({ error } = await db.from('songs').insert(payload));
-  }
+      let error;
+      if (editingSongId) {
+        ({ error } = await db.from('songs').update(payload).eq('id', editingSongId));
+      } else {
+        ({ error } = await db.from('songs').insert(payload));
+      }
 
-  btn.disabled = false;
-  btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;">save</span> Save Song';
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;">save</span> Save Song';
 
-  if (error) { showToast('Save failed: ' + error.message); return; }
+      if (error) { showToast('Save failed: ' + error.message); return; }
 
-  showToast(editingSongId ? 'Song updated!' : 'Song added!');
-  const savedId = editingSongId;
-  const wasEditingCurrent = savedId && currentSongId === savedId;
-  closeSongModal();
-  await loadSongs();
-  if (wasEditingCurrent) {
-    openSongDetail(savedId);
-  }
-};
+      showToast(editingSongId ? 'Song updated!' : 'Song added!');
+      const savedId = editingSongId;
+      const wasEditingCurrent = savedId && currentSongId === savedId;
+      closeSongModal();
+      await loadSongs();
+      if (wasEditingCurrent) {
+        openSongDetail(savedId);
+      }
+    };
 
-// ─── Delete Song ──────────────────────────────────────────────────────────────
-document.getElementById('btn-delete-song').onclick = () => {
-  const song = allSongs.find(s => s.id === currentSongId);
-  showConfirm(`Delete "${song?.name}"? This cannot be undone.`, async () => {
-    const { error } = await db.from('songs').delete().eq('id', currentSongId);
-    if (error) { showToast('Delete failed'); return; }
-    showToast('Song deleted');
-    await loadSongs();
-    showScreen('screen-dashboard');
-  });
-};
+    // ─── Delete Song ──────────────────────────────────────────────────────────────
+    document.getElementById('btn-delete-song').onclick = () => {
+      const song = allSongs.find(s => s.id === currentSongId);
+      showConfirm(`Delete "${song?.name}"? This cannot be undone.`, async () => {
+        const { error } = await db.from('songs').delete().eq('id', currentSongId);
+        if (error) { showToast('Delete failed'); return; }
+        showToast('Song deleted');
+        await loadSongs();
+        showScreen('screen-dashboard');
+      });
+    };
 
-// ─── Navigation ───────────────────────────────────────────────────────────────
-document.getElementById('btn-back').onclick = () => showScreen('screen-dashboard');
-document.getElementById('detail-nav-back').onclick = (e) => { e.preventDefault(); showScreen('screen-dashboard'); };
+    // ─── Navigation ───────────────────────────────────────────────────────────────
+    document.getElementById('btn-back').onclick = () => showScreen('screen-dashboard');
+    document.getElementById('detail-nav-back').onclick = (e) => { e.preventDefault(); showScreen('screen-dashboard'); };
 
-// Close modals on overlay click
-document.getElementById('modal-overlay').addEventListener('click', function(e) {
-  if (e.target === this) closeSongModal();
-});
-document.getElementById('audio-modal-overlay').addEventListener('click', function(e) {
-  if (e.target === this) this.style.display = 'none';
-});
-document.getElementById('chord-modal-overlay').addEventListener('click', function(e) {
-  if (e.target === this) this.style.display = 'none';
-});
+    // Close modals on overlay click
+    document.getElementById('modal-overlay').addEventListener('click', function (e) {
+      if (e.target === this) closeSongModal();
+    });
+    document.getElementById('audio-modal-overlay').addEventListener('click', function (e) {
+      if (e.target === this) this.style.display = 'none';
+    });
+    document.getElementById('chord-modal-overlay').addEventListener('click', function (e) {
+      if (e.target === this) this.style.display = 'none';
+    });
 
-// ─── Shared constants & helpers ───────────────────────────────────────────────
-const SECTION_COLORS = {
-  intro:  ['#004f54','#74f5ff'],
-  verse:  ['#1a3a6b','#93c5fd'],
-  chorus: ['#6b0038','#ffb0cc'],
-  bridge: ['#3b1a6b','#d8b4fe'],
-  break:  ['#5c3200','#fdba74'],
-  outro:  ['#2a2a2a','#c6c5d6'],
-};
+    // ─── Shared constants & helpers ───────────────────────────────────────────────
+    const SECTION_COLORS = {
+      intro: ['#004f54', '#74f5ff'],
+      verse: ['#1a3a6b', '#93c5fd'],
+      chorus: ['#6b0038', '#ffb0cc'],
+      bridge: ['#3b1a6b', '#d8b4fe'],
+      break: ['#5c3200', '#fdba74'],
+      outro: ['#2a2a2a', '#c6c5d6'],
+    };
 
-function safeJsonArray(val) {
-  if (!val) return [];
-  if (Array.isArray(val)) return val;
-  try { const p = JSON.parse(val); return Array.isArray(p) ? p : []; } catch { return []; }
-}
+    function safeJsonArray(val) {
+      if (!val) return [];
+      if (Array.isArray(val)) return val;
+      try { const p = JSON.parse(val); return Array.isArray(p) ? p : []; } catch { return []; }
+    }
 
-// ─── Utils ────────────────────────────────────────────────────────────────────
-function escHtml(str) {
-  if (str == null) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
+    // ─── Utils ────────────────────────────────────────────────────────────────────
+    function escHtml(str) {
+      if (str == null) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
 
-// ─── Init ─────────────────────────────────────────────────────────────────────
-loadSongs();
-</script>
+    document.getElementById('structure-builder').addEventListener('click', e => {
+      if (!e.target.closest('.sblock')) {
+        activeStructureIndex = null;
+        renderStructureBuilder();
+      }
+    });
+
+    // ─── Init ─────────────────────────────────────────────────────────────────────
+    loadSongs();
+  </script>
 </body>
+
 </html>
