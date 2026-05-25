@@ -435,6 +435,8 @@
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b21pcGVkbGRkYnJ1dGp4ZWZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MTYzODksImV4cCI6MjA5NTI5MjM4OX0.OiE5lLQ5N939H2dlgZQIvPjjgQg7UQUwS-mcHwVn2fw";
       const BUCKET_NAME = "audio";
       const DEFAULT_PIN = "1234";
+      const MAX_AUDIO_MB = 5;
+      const MAX_AUDIO_BYTES = MAX_AUDIO_MB * 1024 * 1024;
       const PIN_STORAGE_KEY = "choirAdminPin";
       const ADMIN_UNLOCK_KEY = "choirAdminUnlocked";
 
@@ -498,7 +500,7 @@
       async function fetchSongs(query = "") {
         let request = client.from("songs").select("*").order("name");
         if (query) {
-          const safeQuery = query.replace(/%/g, "\\%");
+          const safeQuery = query.replace(/[%_]/g, "\\$&");
           request = request.or(
             `name.ilike.%${safeQuery}%,key.ilike.%${safeQuery}%`
           );
@@ -730,7 +732,8 @@
       function getTrackDisplayName(track) {
         if (!track?.name) return "Audio track";
         const parts = track.name.split("/");
-        return parts[parts.length - 1].replace(/^[\w-]+-/, "");
+        const fileName = parts[parts.length - 1];
+        return fileName.replace(/^[a-f0-9-]{36}-/i, "");
       }
 
       async function deleteTrack(track) {
@@ -775,7 +778,15 @@
       }
 
       function safeFileName(fileName) {
-        return fileName.replace(/[^\w.\-]+/g, "_");
+        const sanitized = fileName.replace(/[^a-zA-Z0-9._-]+/g, "_");
+        return sanitized.replace(/^\.+/, "_");
+      }
+
+      function isLikelyAudioFile(file) {
+        if (file.type) {
+          return file.type.startsWith("audio/");
+        }
+        return /\.(mp3|wav|m4a|aac|ogg|flac)$/i.test(file.name);
       }
 
       async function uploadAudioFiles() {
@@ -788,7 +799,22 @@
           return;
         }
         setStatus("Uploading audio...");
-        for (const file of audioFiles.files) {
+        const files = Array.from(audioFiles.files);
+        for (const file of files) {
+          if (!isLikelyAudioFile(file)) {
+            setStatus(`"${file.name}" is not an audio file.`, "error");
+            return;
+          }
+          if (file.size > MAX_AUDIO_BYTES) {
+            setStatus(
+              `"${file.name}" is larger than ${MAX_AUDIO_MB} MB.`,
+              "error"
+            );
+            return;
+          }
+        }
+
+        for (const file of files) {
           const uniqueName = `${editingSongId}/${crypto.randomUUID()}-${safeFileName(
             file.name
           )}`;
