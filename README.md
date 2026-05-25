@@ -7,7 +7,7 @@ A mobile-first web app that centralises song data for the choir — replacing sc
 
 ## Live URL
 
-> **https://angham-stmarks-choir.vercel.app**
+> **https://angham-choir-app.vercel.app**
 
 ---
 

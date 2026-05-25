@@ -1015,14 +1015,18 @@
       const chips = [
         { label: 'Key', value: song.key || '—' },
         { label: 'BPM', value: song.bpm || '—' },
-        { label: 'Rhythm', value: song.rhythm || '—' },
       ];
       document.getElementById('detail-chips').innerHTML = chips.map(c => `
-    <div class="detail-chip">
-      <div style="font-size:10px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#908f9f;">${c.label}</div>
-      <div style="font-size:20px; font-weight:700; color:#bec2ff;">${escHtml(String(c.value))}</div>
-    </div>
-  `).join('');
+  <div class="detail-chip">
+    <div style="font-size:10px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#908f9f;">${c.label}</div>
+    <div style="font-size:20px; font-weight:700; color:#bec2ff;">${escHtml(String(c.value))}</div>
+  </div>
+`).join('') + (song.rhythm ? `
+  <div class="detail-chip" style="grid-column:1/-1;">
+    <div style="font-size:10px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#908f9f;">Rhythm</div>
+    <div style="font-size:20px; font-weight:700; color:#bec2ff;">${escHtml(song.rhythm)}</div>
+  </div>
+` : '');
 
       // Structure
       const structureData = safeJsonArray(song.structure);
