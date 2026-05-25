@@ -224,4 +224,22 @@ Angham_choir_App/
 - Drag and drop to reorder
 - Inline rename via edit icon
 - Delete with confirmation
-```
+
+**Vercel (free tier)**
+- 100 GB bandwidth/month
+- Deployments from `main` only trigger auto-deploy
+- Static files only — no server-side code (fine for you, everything is client-side)
+- Individual file size limit: **25 MB** — keep your `index.html` well under that
+
+**Supabase (free tier)**
+- **500 MB** database storage
+- **1 GB** file storage (audio + chord sheets combined) — this is your main constraint
+- **2 GB** bandwidth/month
+- Project **pauses after 1 week of inactivity** — first load after pause is slow (~5–10s), then normal
+- Max **50 MB per file upload**
+- 500 simultaneous connections max
+
+**Most likely issues you'll hit:**
+1. Storage fills up from large audio files — keep tracks under 5 MB each
+2. Project pauses if choir doesn't use it for a week — first person to open it will see a slow load, then it wakes up
+3. No backups automatically — export manually from Supabase dashboard occasionally
