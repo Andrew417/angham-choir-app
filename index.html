@@ -5,19 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Angham Choir Song Manager</title>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
     <style>
       :root {
         color-scheme: light;
-        --bg: #f6f7fb;
+        --bg: #f4f5f7;
         --card: #ffffff;
-        --primary: #2b4cff;
-        --primary-dark: #2138c5;
-        --text: #1a1d26;
+        --primary: #1f3bff;
+        --primary-dark: #182bbd;
+        --text: #111318;
         --muted: #6b7280;
         --border: #e5e7eb;
         --danger: #c81e1e;
         --success: #0f9d58;
-        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        --shadow: 0 10px 30px rgba(15, 18, 28, 0.08);
+        font-family: "Space Grotesk", "Segoe UI", sans-serif;
       }
 
       * {
@@ -26,64 +33,39 @@
 
       body {
         margin: 0;
-        background: var(--bg);
+        background: linear-gradient(180deg, var(--bg) 0%, #eef1f6 100%);
         color: var(--text);
       }
 
       header {
-        background: var(--card);
-        border-bottom: 1px solid var(--border);
-        padding: 20px 24px;
+        padding: 24px 28px 8px;
       }
 
       header h1 {
-        margin: 0 0 6px 0;
+        margin: 0;
         font-size: 22px;
       }
 
       header p {
-        margin: 0;
+        margin: 6px 0 0;
         color: var(--muted);
         font-size: 14px;
       }
 
-      nav {
-        display: flex;
-        gap: 12px;
-        padding: 16px 24px 0;
-        flex-wrap: wrap;
-      }
-
-      nav button {
-        border: 1px solid var(--border);
-        background: var(--card);
-        padding: 10px 16px;
-        border-radius: 999px;
-        cursor: pointer;
-        font-weight: 600;
-        color: var(--muted);
-      }
-
-      nav button.active {
-        background: var(--primary);
-        border-color: var(--primary);
-        color: #fff;
-      }
-
       main {
-        padding: 20px 24px 40px;
+        padding: 16px 24px 40px;
       }
 
-      .tab {
+      .view {
         display: none;
       }
 
-      .tab.active {
+      .view.active {
         display: block;
       }
 
       .status {
-        margin: 0 24px;
+        margin: 0 24px 16px;
         padding: 12px 16px;
         border-radius: 10px;
         display: none;
@@ -102,10 +84,11 @@
         border: 1px solid #bce3cf;
       }
 
-      .library-layout {
-        display: grid;
-        grid-template-columns: minmax(220px, 1fr) minmax(0, 2fr);
-        gap: 20px;
+      .dashboard-bar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
       }
 
       .panel {
@@ -113,10 +96,7 @@
         border-radius: 16px;
         border: 1px solid var(--border);
         padding: 16px;
-      }
-
-      .search {
-        margin-bottom: 16px;
+        box-shadow: var(--shadow);
       }
 
       input,
@@ -135,60 +115,76 @@
         resize: vertical;
       }
 
-      .song-list {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
+      .tiles {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
       }
 
-      .song-item {
-        padding: 10px 12px;
-        border-radius: 12px;
+      .tile {
+        padding: 14px;
+        border-radius: 14px;
         border: 1px solid var(--border);
+        background: var(--card);
         cursor: pointer;
-        background: #fafafa;
+        transition: border-color 0.2s ease, transform 0.2s ease;
       }
 
-      .song-item .inline-audio {
-        margin-top: 8px;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-
-      .song-item .inline-audio audio {
-        width: 100%;
-      }
-
-      .song-item .inline-actions {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-        margin-top: 8px;
-      }
-
-      .song-item .inline-actions .btn {
-        padding: 6px 10px;
-        font-size: 12px;
-      }
-
-      .song-item.active {
+      .tile:hover {
         border-color: var(--primary);
-        background: #eef2ff;
+        transform: translateY(-2px);
       }
 
-      .song-item h4 {
-        margin: 0 0 4px 0;
+      .tile h4 {
+        margin: 0 0 6px;
         font-size: 15px;
       }
 
-      .song-item span {
+      .tile span {
         font-size: 12px;
         color: var(--muted);
       }
 
-      .song-details h2 {
-        margin-top: 0;
+      .song-page {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .song-page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .song-page-header h2 {
+        margin: 0;
+        font-size: 22px;
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .icon-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        cursor: pointer;
+      }
+
+      .icon-btn svg {
+        width: 18px;
+        height: 18px;
+        fill: currentColor;
       }
 
       .detail-grid {
@@ -235,12 +231,6 @@
         width: 100%;
       }
 
-      .admin-grid {
-        display: grid;
-        grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-        gap: 20px;
-      }
-
       .admin-actions {
         display: flex;
         gap: 10px;
@@ -276,27 +266,6 @@
         border: 1px solid #f2b5b5;
       }
 
-      .admin-list {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
-
-      .admin-card {
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 12px;
-        background: #fdfdfd;
-      }
-
-      .admin-card h4 {
-        margin: 0 0 6px;
-      }
-
-      .admin-card small {
-        color: var(--muted);
-      }
-
       .form-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -327,31 +296,47 @@
         display: none;
       }
 
+      .modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 18, 28, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .modal.hidden {
+        display: none;
+      }
+
+      .modal-card {
+        background: var(--card);
+        width: min(720px, 100%);
+        border-radius: 18px;
+        border: 1px solid var(--border);
+        padding: 20px;
+        box-shadow: var(--shadow);
+      }
+
+      .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+      }
+
+      .modal-header h3 {
+        margin: 0;
+      }
+
       @media (max-width: 900px) {
         body {
           font-size: 15px;
         }
 
-        .library-layout,
-        .admin-grid {
-          grid-template-columns: 1fr;
-        }
-
         header {
-          padding: 16px 18px;
-        }
-
-        nav {
-          padding: 12px 18px 0;
-          position: sticky;
-          top: 0;
-          z-index: 10;
-          background: var(--bg);
-        }
-
-        nav button {
-          flex: 1 1 120px;
-          text-align: center;
+          padding: 18px 18px 8px;
         }
 
         main {
@@ -362,21 +347,19 @@
           padding: 14px;
         }
 
-        .song-item {
-          padding: 12px 14px;
+        .dashboard-bar {
+          flex-direction: column;
+          align-items: stretch;
         }
 
-        .song-item h4 {
-          font-size: 16px;
+        .icon-btn {
+          width: 42px;
+          height: 42px;
         }
 
-        .song-item .inline-actions .btn {
-          flex: 1 1 120px;
-          min-height: 40px;
-        }
-
-        .song-details h2 {
-          font-size: 20px;
+        .song-page-header {
+          flex-direction: column;
+          align-items: flex-start;
         }
 
         .audio-item audio {
@@ -396,123 +379,123 @@
   </head>
   <body>
     <header>
-      <h1>Angham Choir Song Manager</h1>
-      <p>Centralize songs, lyrics, and audio tracks for the choir.</p>
+      <h1>Angham Choir</h1>
+      <p>Search, organize, and listen to choir songs.</p>
     </header>
-
-    <nav>
-      <button class="active" data-tab="library">Library</button>
-      <button data-tab="admin">Admin</button>
-    </nav>
-
     <div id="status" class="status"></div>
 
     <main>
-      <section id="library" class="tab active">
-        <div class="panel search">
-          <input
-            type="text"
-            id="searchInput"
-            placeholder="Search by name or key (scale)..."
-          />
-        </div>
-        <div class="library-layout">
-          <div class="panel">
-            <h3 class="section-title">Songs</h3>
-            <div id="songList" class="song-list"></div>
+      <section id="dashboard" class="view active">
+        <div class="panel">
+          <div class="dashboard-bar">
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Search by name or key (scale)..."
+            />
+            <button class="icon-btn" id="addSongBtn" aria-label="Add song">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M11 5h2v14h-2zM5 11h14v2H5z"
+                />
+              </svg>
+            </button>
           </div>
-          <div class="panel song-details" id="songDetails">
-            <h2>Select a song</h2>
-            <p class="muted">
-              Choose a song from the list to see details, lyrics, and audio
-              tracks.
-            </p>
-          </div>
+          <div id="songTiles" class="tiles"></div>
         </div>
       </section>
 
-      <section id="admin" class="tab">
-        <div id="adminGate" class="panel">
-          <h3 class="section-title">Admin PIN</h3>
-          <p class="muted">Enter the 4-digit PIN to manage songs.</p>
-          <div class="form-group">
-            <input type="password" id="pinInput" placeholder="PIN" />
-          </div>
-          <div class="admin-actions">
-            <button class="btn primary" id="pinSubmit">Unlock</button>
-          </div>
-          <p id="pinError" class="muted"></p>
-        </div>
-
-        <div id="adminPanel" class="hidden">
-          <div class="admin-grid">
-            <div class="panel">
-              <h3 class="section-title" id="formTitle">Add New Song</h3>
-              <form id="songForm">
-                <div class="form-group">
-                  <label for="songName">Song Name *</label>
-                  <input id="songName" required />
-                </div>
-                <div class="form-grid">
-                  <div class="form-group">
-                    <label for="songKey">Key (Scale)</label>
-                    <input id="songKey" />
-                  </div>
-                  <div class="form-group">
-                    <label for="songBpm">BPM</label>
-                    <input id="songBpm" type="number" min="0" />
-                  </div>
-                  <div class="form-group">
-                    <label for="songRhythm">Rhythm</label>
-                    <input id="songRhythm" />
-                  </div>
-                  <div class="form-group">
-                    <label for="songStructure">Structure</label>
-                    <input id="songStructure" />
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="songLyrics">Lyrics</label>
-                  <textarea id="songLyrics"></textarea>
-                </div>
-                <div class="form-group">
-                  <label for="songNotes">Notes</label>
-                  <textarea id="songNotes"></textarea>
-                </div>
-                <div class="admin-actions">
-                  <button class="btn primary" type="submit">Save</button>
-                  <button class="btn ghost" type="button" id="formCancel">
-                    Clear
-                  </button>
-                </div>
-              </form>
-
-              <div id="audioSection" class="hidden">
-                <hr />
-                <h4>Audio Tracks</h4>
-                <p class="muted">
-                  Upload MP3s or audio files to the public Supabase bucket.
-                </p>
-                <div class="form-group">
-                  <input type="file" id="audioFiles" multiple accept="audio/*" />
-                </div>
-                <div class="admin-actions">
-                  <button class="btn primary" id="uploadAudioBtn">
-                    Upload Audio
-                  </button>
-                </div>
-                <div id="adminAudioList" class="audio-list"></div>
-              </div>
+      <section id="songPage" class="view">
+        <div class="panel song-page">
+          <div class="song-page-header">
+            <div class="header-actions">
+              <button class="btn ghost" id="backToDashboard">Back</button>
             </div>
-
-            <div class="panel">
-              <h3 class="section-title">Manage Songs</h3>
-              <div id="adminSongs" class="admin-list"></div>
+            <h2 id="songTitle">Song</h2>
+            <div class="header-actions">
+              <button class="icon-btn" id="editSongBtn" aria-label="Edit song">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
+                  />
+                </svg>
+              </button>
+              <button class="icon-btn" id="deleteSongBtn" aria-label="Delete song">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M6 7h12l-1 14H7L6 7zm3-3h6l1 2H8l1-2z"
+                  />
+                </svg>
+              </button>
             </div>
+          </div>
+          <div id="songDetails" class="song-details"></div>
+          <div class="detail-card" style="margin-top: 12px;">
+            <label>Audio Tracks</label>
+            <div id="libraryAudioList" class="audio-list"></div>
+            <div class="form-group" style="margin-top: 12px;">
+              <input type="file" id="audioFiles" multiple accept="audio/*" />
+            </div>
+            <div class="admin-actions">
+              <button class="btn primary" id="uploadAudioBtn">
+                Upload Audio
+              </button>
+            </div>
+          </div>
+          <div class="detail-card" style="margin-top: 12px;">
+            <label>Photos</label>
+            <div class="muted">No photos yet.</div>
           </div>
         </div>
       </section>
     </main>
+
+    <div id="songFormModal" class="modal hidden" aria-hidden="true">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 id="formTitle">Add New Song</h3>
+          <button class="icon-btn" id="modalClose" aria-label="Close">✕</button>
+        </div>
+        <form id="songForm">
+          <div class="form-group">
+            <label for="songName">Song Name *</label>
+            <input id="songName" required />
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="songKey">Key (Scale)</label>
+              <input id="songKey" />
+            </div>
+            <div class="form-group">
+              <label for="songBpm">BPM</label>
+              <input id="songBpm" type="number" min="0" />
+            </div>
+            <div class="form-group">
+              <label for="songRhythm">Rhythm</label>
+              <input id="songRhythm" />
+            </div>
+            <div class="form-group">
+              <label for="songStructure">Structure</label>
+              <input id="songStructure" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="songLyrics">Lyrics</label>
+            <textarea id="songLyrics"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="songNotes">Notes</label>
+            <textarea id="songNotes"></textarea>
+          </div>
+          <div class="admin-actions">
+            <button class="btn primary" type="submit">Save</button>
+            <button class="btn ghost" type="button" id="formCancel">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
@@ -520,7 +503,6 @@
       const SUPABASE_ANON_KEY =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b21pcGVkbGRkYnJ1dGp4ZWZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MTYzODksImV4cCI6MjA5NTI5MjM4OX0.OiE5lLQ5N939H2dlgZQIvPjjgQg7UQUwS-mcHwVn2fw";
       const BUCKET_NAME = "audio";
-      const DEFAULT_PIN = "1234";
       const MAX_AUDIO_MB = 5;
       const MAX_AUDIO_BYTES = MAX_AUDIO_MB * 1024 * 1024;
       const FALLBACK_FILENAME = "audio";
@@ -537,28 +519,27 @@
         "audio/ogg": "ogg",
         "audio/flac": "flac",
       };
-      const PIN_STORAGE_KEY = "choirAdminPin";
-      const ADMIN_UNLOCK_KEY = "choirAdminUnlocked";
-
       const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
       const statusEl = document.getElementById("status");
-      const songListEl = document.getElementById("songList");
+      const dashboardSection = document.getElementById("dashboard");
+      const songPageSection = document.getElementById("songPage");
+      const songTilesEl = document.getElementById("songTiles");
       const songDetailsEl = document.getElementById("songDetails");
+      const songTitleEl = document.getElementById("songTitle");
       const searchInput = document.getElementById("searchInput");
-      const adminGate = document.getElementById("adminGate");
-      const adminPanel = document.getElementById("adminPanel");
-      const pinInput = document.getElementById("pinInput");
-      const pinSubmit = document.getElementById("pinSubmit");
-      const pinError = document.getElementById("pinError");
-      const adminSongsEl = document.getElementById("adminSongs");
+      const addSongBtn = document.getElementById("addSongBtn");
+      const backToDashboard = document.getElementById("backToDashboard");
+      const editSongBtn = document.getElementById("editSongBtn");
+      const deleteSongBtn = document.getElementById("deleteSongBtn");
+      const songFormModal = document.getElementById("songFormModal");
+      const modalClose = document.getElementById("modalClose");
       const songForm = document.getElementById("songForm");
       const formTitle = document.getElementById("formTitle");
       const formCancel = document.getElementById("formCancel");
-      const audioSection = document.getElementById("audioSection");
       const audioFiles = document.getElementById("audioFiles");
       const uploadAudioBtn = document.getElementById("uploadAudioBtn");
-      const adminAudioList = document.getElementById("adminAudioList");
+      const libraryAudioList = document.getElementById("libraryAudioList");
 
       const formFields = {
         name: document.getElementById("songName"),
@@ -590,13 +571,14 @@
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
 
-      function setActiveTab(tabId) {
-        document.querySelectorAll("nav button").forEach((btn) => {
-          btn.classList.toggle("active", btn.dataset.tab === tabId);
-        });
-        document.querySelectorAll(".tab").forEach((tab) => {
-          tab.classList.toggle("active", tab.id === tabId);
-        });
+      function showDashboard() {
+        dashboardSection.classList.add("active");
+        songPageSection.classList.remove("active");
+      }
+
+      function showSongPage() {
+        dashboardSection.classList.remove("active");
+        songPageSection.classList.add("active");
       }
 
       async function fetchSongs() {
@@ -609,67 +591,31 @@
         return data || [];
       }
 
-      function renderSongList() {
-        songListEl.innerHTML = "";
+      function renderSongTiles() {
+        songTilesEl.innerHTML = "";
         if (!songsCache.length) {
-          songListEl.innerHTML =
-            '<p class="muted">No songs yet. Add one in the admin tab.</p>';
+          songTilesEl.innerHTML =
+            '<p class="muted">No songs yet. Tap + to add your first one.</p>';
           return;
         }
         songsCache.forEach((song) => {
-          const item = document.createElement("div");
-          item.className = `song-item ${
-            selectedSongId === song.id ? "active" : ""
-          }`;
-          item.innerHTML = `<h4>${song.name}</h4><span>${
+          const tile = document.createElement("div");
+          tile.className = "tile";
+          tile.innerHTML = `<h4>${song.name}</h4><span>${
             song.key || "No key"
           }</span>`;
-          item.addEventListener("click", () => showSongDetails(song.id));
-
-          const inlineActions = document.createElement("div");
-          inlineActions.className = "inline-actions";
-          const inlineButton = document.createElement("button");
-          inlineButton.className = "btn ghost";
-          inlineButton.type = "button";
-          inlineButton.textContent = "Show audio";
-          inlineButton.addEventListener("click", async (event) => {
-            event.stopPropagation();
-            await loadInlineAudio(song.id, item);
-          });
-          const playAllButton = document.createElement("button");
-          playAllButton.className = "btn primary";
-          playAllButton.type = "button";
-          playAllButton.textContent = "Play all";
-          playAllButton.addEventListener("click", async (event) => {
-            event.stopPropagation();
-            const tracks = await ensureInlineAudio(song.id, item);
-            if (tracks.length) {
-              playAllInContainer(item.querySelector(".inline-audio"));
-            }
-          });
-          inlineActions.appendChild(inlineButton);
-          inlineActions.appendChild(playAllButton);
-          item.appendChild(inlineActions);
-
-          const inlineAudio = document.createElement("div");
-          inlineAudio.className = "inline-audio";
-          item.appendChild(inlineAudio);
-
-          if (audioCache[song.id]) {
-            renderInlineAudio(inlineAudio, audioCache[song.id]);
-          }
-
-          songListEl.appendChild(item);
+          tile.addEventListener("click", () => showSongDetails(song.id));
+          songTilesEl.appendChild(tile);
         });
       }
 
       async function showSongDetails(songId) {
         selectedSongId = songId;
-        renderSongList();
         const song = songsCache.find((item) => item.id === songId);
         if (!song) return;
+        songTitleEl.textContent = song.name || "Song";
+        showSongPage();
         songDetailsEl.innerHTML = `
-          <h2>${song.name}</h2>
           <div class="detail-grid">
             <div class="detail-card"><label>Key</label>${
               song.key || "—"
@@ -691,6 +637,10 @@
           <div class="detail-card" style="margin-top:12px;">
             <label>Notes</label>
             <div>${song.notes ? song.notes.replace(/\n/g, "<br>") : "—"}</div>
+          </div>
+          <div class="detail-card" style="margin-top:12px;">
+            <label>Photos</label>
+            <div class="muted">No photos yet.</div>
           </div>
           <div class="detail-card" style="margin-top:12px;">
             <label>Audio Tracks</label>
@@ -725,65 +675,7 @@
           audioList.appendChild(audioItem);
         });
 
-        if (window.innerWidth <= 900) {
-          songDetailsEl.scrollIntoView({ behavior: "smooth" });
-        }
-      }
-
-      function renderInlineAudio(container, tracks) {
-        container.innerHTML = "";
-        if (!tracks?.length) {
-          container.innerHTML = '<p class="muted">No audio tracks.</p>';
-          return;
-        }
-        tracks.forEach((track) => {
-          const audioItem = document.createElement("div");
-          audioItem.className = "audio-item";
-          audioItem.innerHTML = `
-            <h5>${getTrackDisplayName(track)}</h5>
-            <audio controls preload="none" src="${track.url}"></audio>
-          `;
-          container.appendChild(audioItem);
-        });
-      }
-
-      async function ensureInlineAudio(songId, item) {
-        const container = item.querySelector(".inline-audio");
-        if (!container) return [];
-        if (audioCache[songId]) {
-          renderInlineAudio(container, audioCache[songId]);
-          return audioCache[songId];
-        }
-        container.innerHTML = '<p class="muted">Loading audio...</p>';
-        const { data, error } = await client
-          .from("audio_tracks")
-          .select("*")
-          .eq("song_id", songId)
-          .order("created_at");
-        if (error) {
-          container.innerHTML = `<p class="muted">Error: ${error.message}</p>`;
-          return [];
-        }
-        audioCache[songId] = data || [];
-        renderInlineAudio(container, audioCache[songId]);
-        return audioCache[songId];
-      }
-
-      async function loadInlineAudio(songId, item) {
-        await ensureInlineAudio(songId, item);
-      }
-
-      function playAllInContainer(container) {
-        if (!container) return;
-        const audios = Array.from(container.querySelectorAll("audio"));
-        if (!audios.length) return;
-        audios.forEach((audio, index) => {
-          audio.onended = () => {
-            const next = audios[index + 1];
-            if (next) next.play();
-          };
-        });
-        audios[0].play();
+        songPageSection.scrollIntoView({ behavior: "smooth" });
       }
 
       function applySearchFilter(query = "") {
@@ -795,21 +687,10 @@
               return name.includes(normalized) || key.includes(normalized);
             })
           : [...allSongsCache];
-        renderSongList();
-        renderAdminSongs();
-        if (selectedSongId) {
-          const stillExists = songsCache.some((song) => song.id === selectedSongId);
-          if (!stillExists && songsCache.length) {
-            selectedSongId = songsCache[0].id;
-          }
-        }
-        if (selectedSongId) {
-          showSongDetails(selectedSongId);
-        } else if (songsCache.length) {
-          showSongDetails(songsCache[0].id);
-        } else {
-          songDetailsEl.innerHTML =
-            "<h2>Select a song</h2><p class='muted'>No songs yet.</p>";
+        renderSongTiles();
+        if (selectedSongId && !songsCache.some((song) => song.id === selectedSongId)) {
+          showDashboard();
+          selectedSongId = null;
         }
       }
 
@@ -818,24 +699,21 @@
         applySearchFilter(searchInput.value);
       }
 
-      function ensurePin() {
-        if (!localStorage.getItem(PIN_STORAGE_KEY)) {
-          localStorage.setItem(PIN_STORAGE_KEY, DEFAULT_PIN);
-        }
+      function openSongFormModal() {
+        songFormModal.classList.remove("hidden");
+        songFormModal.setAttribute("aria-hidden", "false");
       }
 
-      function updateAdminVisibility() {
-        const unlocked = sessionStorage.getItem(ADMIN_UNLOCK_KEY) === "true";
-        adminGate.classList.toggle("hidden", unlocked);
-        adminPanel.classList.toggle("hidden", !unlocked);
+      function closeSongFormModal() {
+        songFormModal.classList.add("hidden");
+        songFormModal.setAttribute("aria-hidden", "true");
       }
 
       function resetForm() {
         editingSongId = null;
         formTitle.textContent = "Add New Song";
         songForm.reset();
-        audioSection.classList.add("hidden");
-        adminAudioList.innerHTML = "";
+        closeSongFormModal();
       }
 
       function populateForm(song) {
@@ -848,38 +726,7 @@
         formFields.structure.value = song.structure || "";
         formFields.lyrics.value = song.lyrics || "";
         formFields.notes.value = song.notes || "";
-        audioSection.classList.remove("hidden");
-        loadAdminAudio(song.id);
-      }
-
-      function renderAdminSongs() {
-        adminSongsEl.innerHTML = "";
-        if (!songsCache.length) {
-          adminSongsEl.innerHTML =
-            '<p class="muted">No songs yet. Add your first song.</p>';
-          return;
-        }
-        songsCache.forEach((song) => {
-          const card = document.createElement("div");
-          card.className = "admin-card";
-          card.innerHTML = `
-            <h4>${song.name}</h4>
-            <small>${song.key || "No key"} • BPM ${song.bpm || "—"}</small>
-            <div class="admin-actions" style="margin-top:10px;">
-              <button class="btn ghost" data-action="edit">Edit</button>
-              <button class="btn danger" data-action="delete">Delete</button>
-            </div>
-          `;
-          card.querySelector('[data-action="edit"]').addEventListener("click", () => {
-            populateForm(song);
-            setActiveTab("admin");
-            window.scrollTo({ top: 0, behavior: "smooth" });
-          });
-          card
-            .querySelector('[data-action="delete"]')
-            .addEventListener("click", () => deleteSong(song));
-          adminSongsEl.appendChild(card);
-        });
+        openSongFormModal();
       }
 
       async function deleteSong(song) {
@@ -897,6 +744,7 @@
         }
         setStatus("Song deleted.");
         loadSongs();
+        showDashboard();
       }
 
       async function loadAdminAudio(songId) {
@@ -1156,6 +1004,32 @@
       });
 
       uploadAudioBtn.addEventListener("click", uploadAudioFiles);
+
+      addSongBtn.addEventListener("click", () => {
+        resetForm();
+        openAdminModal();
+      });
+
+      modalClose.addEventListener("click", closeAdminModal);
+
+      backToDashboard.addEventListener("click", () => {
+        showDashboard();
+      });
+
+      editSongBtn.addEventListener("click", () => {
+        if (!selectedSongId) return;
+        const song = allSongsCache.find((item) => item.id === selectedSongId);
+        if (!song) return;
+        populateForm(song);
+        openAdminModal();
+      });
+
+      deleteSongBtn.addEventListener("click", () => {
+        if (!selectedSongId) return;
+        const song = allSongsCache.find((item) => item.id === selectedSongId);
+        if (!song) return;
+        deleteSong(song);
+      });
 
       ensurePin();
       updateAdminVisibility();
