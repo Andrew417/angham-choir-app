@@ -680,7 +680,9 @@
           <h2 style="font-size:18px; font-weight:700;">Lyrics</h2>
           <span class="material-symbols-outlined" style="color:#bec2ff;">format_align_left</span>
         </div>
-        <div id="detail-lyrics"></div>
+        <div id="detail-lyrics"
+          style="background:#0e0e0e; border:1px solid #454653; border-radius:0.75rem; padding:16px; font-size:16px; line-height:1.75; white-space:pre-wrap; word-break:break-word; color:#e5e2e1;">
+        </div>
       </div>
 
       <!-- Notes -->
@@ -795,12 +797,7 @@
         <!-- Lyrics Builder -->
         <div>
           <label>Lyrics</label>
-          <div id="lyrics-builder" style="display:flex; flex-direction:column; gap:10px;"></div>
-          <button type="button" onclick="addLyricsSection()"
-            style="margin-top:8px; width:100%; padding:10px; background:#0e0e0e; border:1px dashed #454653; border-radius:0.75rem; color:#908f9f; font-size:14px; cursor:pointer; transition:border-color 0.2s;"
-            onmouseover="this.style.borderColor='#bec2ff'" onmouseout="this.style.borderColor='#454653'">
-            + Add Section
-          </button>
+          <textarea id="field-lyrics" placeholder="Paste full lyrics here…" style="min-height:200px;"></textarea>
         </div>
         <div>
           <label>Notes</label>
@@ -1037,23 +1034,11 @@
       }
 
       // Lyrics
-      const lyricsData = safeJsonArray(song.lyrics);
-      const lyricsEl = document.getElementById('detail-lyrics');
       const lyricsWrap = document.getElementById('detail-lyrics-wrap');
-      if (lyricsData.length) {
+      const lyricsEl = document.getElementById('detail-lyrics');
+      if (song.lyrics) {
         lyricsWrap.style.display = 'block';
-        const colors = { intro: ['#004f54', '#74f5ff'], verse: ['#1a3a6b', '#93c5fd'], chorus: ['#6b0038', '#ffb0cc'], bridge: ['#3b1a6b', '#d8b4fe'], break: ['#5c3200', '#fdba74'], outro: ['#2a2a2a', '#c6c5d6'] };
-        lyricsEl.innerHTML = lyricsData.map(sec => {
-          const [bg, fg] = colors[sec.type] || ['#2a2a2a', '#c6c5d6'];
-          return `
-        <div class="lyrics-section" style="border:1px solid ${bg}; border-radius:0.75rem; overflow:hidden; margin-bottom:14px;">
-          <div class="lyrics-section-header" style="background:${bg}; color:${fg};">
-            ${escHtml(BLOCK_LABELS[sec.type] || sec.type)}
-          </div>
-          <div class="lyrics-section-body" style="color:#e5e2e1;">${escHtml(sec.content || '')}</div>
-        </div>
-      `;
-        }).join('');
+        lyricsEl.textContent = song.lyrics;
       } else {
         lyricsWrap.style.display = 'none';
       }
@@ -1453,49 +1438,6 @@
     // ─── Lyrics Builder ───────────────────────────────────────────────────────────
     let lyricsSections = []; // array of {type, content}
 
-    function addLyricsSection(type = 'verse', content = '') {
-      lyricsSections.push({ type, content });
-      renderLyricsBuilder();
-    }
-
-    function removeLyricsSection(index) {
-      lyricsSections.splice(index, 1);
-      renderLyricsBuilder();
-    }
-
-    function moveLyricsSection(index, dir) {
-      const newIndex = index + dir;
-      if (newIndex < 0 || newIndex >= lyricsSections.length) return;
-      [lyricsSections[index], lyricsSections[newIndex]] = [lyricsSections[newIndex], lyricsSections[index]];
-      renderLyricsBuilder();
-    }
-
-    function renderLyricsBuilder() {
-      const container = document.getElementById('lyrics-builder');
-      container.innerHTML = lyricsSections.map((sec, i) => `
-    <div style="border:1px solid #454653; border-radius:0.75rem; overflow:hidden;">
-<div class="lyrics-section-header" style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:${SECTION_COLORS[sec.type]?.[0] || '#2a2a2a'}; color:${SECTION_COLORS[sec.type]?.[1] || '#c6c5d6'};">        <select onchange="lyricsSections[${i}].type=this.value; renderLyricsBuilder()" style="background:transparent !important; border:none !important; padding:2px 4px !important; font-size:12px !important; font-weight:700 !important; color:inherit !important; width:auto !important; cursor:pointer; text-transform:uppercase; letter-spacing:0.06em;">
-          ${BLOCK_TYPES.map(t => `<option value="${t}" ${sec.type === t ? 'selected' : ''} style="background:#201f1f; color:#e5e2e1;">${BLOCK_LABELS[t]}</option>`).join('')}
-        </select>
-        <div style="display:flex; gap:2px;">
-          <button type="button" class="icon-btn" style="width:28px;height:28px;" onclick="moveLyricsSection(${i},-1)" ${i === 0 ? 'disabled' : ''}>
-            <span class="material-symbols-outlined" style="font-size:16px;">arrow_upward</span>
-          </button>
-          <button type="button" class="icon-btn" style="width:28px;height:28px;" onclick="moveLyricsSection(${i},1)" ${i === lyricsSections.length - 1 ? 'disabled' : ''}>
-            <span class="material-symbols-outlined" style="font-size:16px;">arrow_downward</span>
-          </button>
-          <button type="button" class="icon-btn" style="width:28px;height:28px;" onclick="removeLyricsSection(${i})">
-            <span class="material-symbols-outlined" style="font-size:16px; color:#ffb4ab;">delete</span>
-          </button>
-        </div>
-      </div>
-      <textarea oninput="lyricsSections[${i}].content=this.value" placeholder="Type lyrics for this section…" style="border:none !important; border-radius:0 !important; background:#0e0e0e !important; min-height:80px;">${escHtml(sec.content)}</textarea>
-    </div>
-  `).join('');
-
-      // Colors are applied inline in the template above — nothing needed here
-    }
-
     // ─── Add / Edit Song Modal ────────────────────────────────────────────────────
     function openSongModal(song = null) {
       editingSongId = song ? song.id : null;
@@ -1509,8 +1451,7 @@
       structureBlocks = safeJsonArray(song?.structure);
       renderStructureBuilder();
 
-      lyricsSections = safeJsonArray(song?.lyrics);
-      renderLyricsBuilder();
+      document.getElementById('field-lyrics').value = song?.lyrics || '';
 
       document.getElementById('modal-overlay').classList.add('open');
     }
@@ -1539,7 +1480,7 @@
         bpm: parseInt(document.getElementById('field-bpm').value) || null,
         rhythm: document.getElementById('field-rhythm').value.trim() || null,
         structure: structureBlocks.length ? structureBlocks : null,
-        lyrics: lyricsSections.length ? lyricsSections : null,
+        lyrics: document.getElementById('field-lyrics').value.trim() || null,
         notes: document.getElementById('field-notes').value.trim() || null,
       };
 
