@@ -149,6 +149,29 @@
         background: #fafafa;
       }
 
+      .song-item .inline-audio {
+        margin-top: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .song-item .inline-audio audio {
+        width: 100%;
+      }
+
+      .song-item .inline-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 8px;
+      }
+
+      .song-item .inline-actions .btn {
+        padding: 6px 10px;
+        font-size: 12px;
+      }
+
       .song-item.active {
         border-color: var(--primary);
         background: #eef2ff;
@@ -206,6 +229,10 @@
       .audio-item h5 {
         margin: 0 0 8px;
         font-size: 14px;
+      }
+
+      .audio-item audio {
+        width: 100%;
       }
 
       .admin-grid {
@@ -301,9 +328,68 @@
       }
 
       @media (max-width: 900px) {
+        body {
+          font-size: 15px;
+        }
+
         .library-layout,
         .admin-grid {
           grid-template-columns: 1fr;
+        }
+
+        header {
+          padding: 16px 18px;
+        }
+
+        nav {
+          padding: 12px 18px 0;
+          position: sticky;
+          top: 0;
+          z-index: 10;
+          background: var(--bg);
+        }
+
+        nav button {
+          flex: 1 1 120px;
+          text-align: center;
+        }
+
+        main {
+          padding: 16px 18px 32px;
+        }
+
+        .panel {
+          padding: 14px;
+        }
+
+        .song-item {
+          padding: 12px 14px;
+        }
+
+        .song-item h4 {
+          font-size: 16px;
+        }
+
+        .song-item .inline-actions .btn {
+          flex: 1 1 120px;
+          min-height: 40px;
+        }
+
+        .song-details h2 {
+          font-size: 20px;
+        }
+
+        .audio-item audio {
+          height: 44px;
+        }
+
+        .admin-actions {
+          width: 100%;
+        }
+
+        .admin-actions .btn {
+          flex: 1 1 140px;
+          min-height: 42px;
         }
       }
     </style>
@@ -489,6 +575,7 @@
       let selectedSongId = null;
       let editingSongId = null;
       let searchTimer = null;
+      const audioCache = {};
 
       function setStatus(message, type = "success") {
         if (!message) {
@@ -538,6 +625,40 @@
             song.key || "No key"
           }</span>`;
           item.addEventListener("click", () => showSongDetails(song.id));
+
+          const inlineActions = document.createElement("div");
+          inlineActions.className = "inline-actions";
+          const inlineButton = document.createElement("button");
+          inlineButton.className = "btn ghost";
+          inlineButton.type = "button";
+          inlineButton.textContent = "Show audio";
+          inlineButton.addEventListener("click", async (event) => {
+            event.stopPropagation();
+            await loadInlineAudio(song.id, item);
+          });
+          const playAllButton = document.createElement("button");
+          playAllButton.className = "btn primary";
+          playAllButton.type = "button";
+          playAllButton.textContent = "Play all";
+          playAllButton.addEventListener("click", async (event) => {
+            event.stopPropagation();
+            const tracks = await ensureInlineAudio(song.id, item);
+            if (tracks.length) {
+              playAllInContainer(item.querySelector(".inline-audio"));
+            }
+          });
+          inlineActions.appendChild(inlineButton);
+          inlineActions.appendChild(playAllButton);
+          item.appendChild(inlineActions);
+
+          const inlineAudio = document.createElement("div");
+          inlineAudio.className = "inline-audio";
+          item.appendChild(inlineAudio);
+
+          if (audioCache[song.id]) {
+            renderInlineAudio(inlineAudio, audioCache[song.id]);
+          }
+
           songListEl.appendChild(item);
         });
       }
@@ -588,6 +709,7 @@
           audioList.innerHTML = `<p class="muted">Error: ${error.message}</p>`;
           return;
         }
+        audioCache[songId] = data || [];
         if (!data || !data.length) {
           audioList.innerHTML = '<p class="muted">No audio tracks yet.</p>';
           return;
@@ -602,6 +724,66 @@
           `;
           audioList.appendChild(audioItem);
         });
+
+        if (window.innerWidth <= 900) {
+          songDetailsEl.scrollIntoView({ behavior: "smooth" });
+        }
+      }
+
+      function renderInlineAudio(container, tracks) {
+        container.innerHTML = "";
+        if (!tracks?.length) {
+          container.innerHTML = '<p class="muted">No audio tracks.</p>';
+          return;
+        }
+        tracks.forEach((track) => {
+          const audioItem = document.createElement("div");
+          audioItem.className = "audio-item";
+          audioItem.innerHTML = `
+            <h5>${getTrackDisplayName(track)}</h5>
+            <audio controls preload="none" src="${track.url}"></audio>
+          `;
+          container.appendChild(audioItem);
+        });
+      }
+
+      async function ensureInlineAudio(songId, item) {
+        const container = item.querySelector(".inline-audio");
+        if (!container) return [];
+        if (audioCache[songId]) {
+          renderInlineAudio(container, audioCache[songId]);
+          return audioCache[songId];
+        }
+        container.innerHTML = '<p class="muted">Loading audio...</p>';
+        const { data, error } = await client
+          .from("audio_tracks")
+          .select("*")
+          .eq("song_id", songId)
+          .order("created_at");
+        if (error) {
+          container.innerHTML = `<p class="muted">Error: ${error.message}</p>`;
+          return [];
+        }
+        audioCache[songId] = data || [];
+        renderInlineAudio(container, audioCache[songId]);
+        return audioCache[songId];
+      }
+
+      async function loadInlineAudio(songId, item) {
+        await ensureInlineAudio(songId, item);
+      }
+
+      function playAllInContainer(container) {
+        if (!container) return;
+        const audios = Array.from(container.querySelectorAll("audio"));
+        if (!audios.length) return;
+        audios.forEach((audio, index) => {
+          audio.onended = () => {
+            const next = audios[index + 1];
+            if (next) next.play();
+          };
+        });
+        audios[0].play();
       }
 
       function applySearchFilter(query = "") {
@@ -887,7 +1069,14 @@
               url: publicData.publicUrl,
             });
           if (insertError) {
-            setStatus(`DB insert failed: ${insertError.message}`, "error");
+            if (insertError.message.toLowerCase().includes("row-level security")) {
+              setStatus(
+                "Upload failed: audio_tracks insert blocked by RLS. Add a policy with WITH CHECK (true) for inserts on audio_tracks.",
+                "error"
+              );
+            } else {
+              setStatus(`DB insert failed: ${insertError.message}`, "error");
+            }
             return;
           }
         }
