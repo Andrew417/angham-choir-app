@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Angham Choir Song Manager</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f7fb;
+        --card: #ffffff;
+        --primary: #2b4cff;
+        --primary-dark: #2138c5;
+        --text: #1a1d26;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+        --danger: #c81e1e;
+        --success: #0f9d58;
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      header {
+        background: var(--card);
+        border-bottom: 1px solid var(--border);
+        padding: 20px 24px;
+      }
+
+      header h1 {
+        margin: 0 0 6px 0;
+        font-size: 22px;
+      }
+
+      header p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      nav {
+        display: flex;
+        gap: 12px;
+        padding: 16px 24px 0;
+        flex-wrap: wrap;
+      }
+
+      nav button {
+        border: 1px solid var(--border);
+        background: var(--card);
+        padding: 10px 16px;
+        border-radius: 999px;
+        cursor: pointer;
+        font-weight: 600;
+        color: var(--muted);
+      }
+
+      nav button.active {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: #fff;
+      }
+
+      main {
+        padding: 20px 24px 40px;
+      }
+
+      .tab {
+        display: none;
+      }
+
+      .tab.active {
+        display: block;
+      }
+
+      .status {
+        margin: 0 24px;
+        padding: 12px 16px;
+        border-radius: 10px;
+        display: none;
+        font-size: 14px;
+      }
+
+      .status.error {
+        background: #ffecec;
+        color: #9f1c1c;
+        border: 1px solid #f5b5b5;
+      }
+
+      .status.success {
+        background: #e6f6ef;
+        color: #0f5f3b;
+        border: 1px solid #bce3cf;
+      }
+
+      .library-layout {
+        display: grid;
+        grid-template-columns: minmax(220px, 1fr) minmax(0, 2fr);
+        gap: 20px;
+      }
+
+      .panel {
+        background: var(--card);
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        padding: 16px;
+      }
+
+      .search {
+        margin-bottom: 16px;
+      }
+
+      input,
+      textarea,
+      select {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        font-size: 14px;
+        font-family: inherit;
+      }
+
+      textarea {
+        min-height: 80px;
+        resize: vertical;
+      }
+
+      .song-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .song-item {
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        cursor: pointer;
+        background: #fafafa;
+      }
+
+      .song-item.active {
+        border-color: var(--primary);
+        background: #eef2ff;
+      }
+
+      .song-item h4 {
+        margin: 0 0 4px 0;
+        font-size: 15px;
+      }
+
+      .song-item span {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .song-details h2 {
+        margin-top: 0;
+      }
+
+      .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 12px;
+      }
+
+      .detail-card {
+        background: #f9fafb;
+        border-radius: 12px;
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+      }
+
+      .detail-card label {
+        display: block;
+        font-size: 11px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 6px;
+      }
+
+      .audio-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .audio-item {
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: #fdfdfd;
+      }
+
+      .audio-item h5 {
+        margin: 0 0 8px;
+        font-size: 14px;
+      }
+
+      .admin-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+        gap: 20px;
+      }
+
+      .admin-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      .btn.primary {
+        background: var(--primary);
+        color: #fff;
+      }
+
+      .btn.primary:hover {
+        background: var(--primary-dark);
+      }
+
+      .btn.ghost {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text);
+      }
+
+      .btn.danger {
+        background: #fbe9e9;
+        color: var(--danger);
+        border: 1px solid #f2b5b5;
+      }
+
+      .admin-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .admin-card {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px;
+        background: #fdfdfd;
+      }
+
+      .admin-card h4 {
+        margin: 0 0 6px;
+      }
+
+      .admin-card small {
+        color: var(--muted);
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 12px;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .form-group label {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .section-title {
+        margin-top: 0;
+      }
+
+      .muted {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      @media (max-width: 900px) {
+        .library-layout,
+        .admin-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Angham Choir Song Manager</h1>
+      <p>Centralize songs, lyrics, and audio tracks for the choir.</p>
+    </header>
+
+    <nav>
+      <button class="active" data-tab="library">Library</button>
+      <button data-tab="admin">Admin</button>
+    </nav>
+
+    <div id="status" class="status"></div>
+
+    <main>
+      <section id="library" class="tab active">
+        <div class="panel search">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Search by name or key (scale)..."
+          />
+        </div>
+        <div class="library-layout">
+          <div class="panel">
+            <h3 class="section-title">Songs</h3>
+            <div id="songList" class="song-list"></div>
+          </div>
+          <div class="panel song-details" id="songDetails">
+            <h2>Select a song</h2>
+            <p class="muted">
+              Choose a song from the list to see details, lyrics, and audio
+              tracks.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="admin" class="tab">
+        <div id="adminGate" class="panel">
+          <h3 class="section-title">Admin PIN</h3>
+          <p class="muted">Enter the 4-digit PIN to manage songs.</p>
+          <div class="form-group">
+            <input type="password" id="pinInput" placeholder="PIN" />
+          </div>
+          <div class="admin-actions">
+            <button class="btn primary" id="pinSubmit">Unlock</button>
+          </div>
+          <p id="pinError" class="muted"></p>
+        </div>
+
+        <div id="adminPanel" class="hidden">
+          <div class="admin-grid">
+            <div class="panel">
+              <h3 class="section-title" id="formTitle">Add New Song</h3>
+              <form id="songForm">
+                <div class="form-group">
+                  <label for="songName">Song Name *</label>
+                  <input id="songName" required />
+                </div>
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="songKey">Key (Scale)</label>
+                    <input id="songKey" />
+                  </div>
+                  <div class="form-group">
+                    <label for="songBpm">BPM</label>
+                    <input id="songBpm" type="number" min="0" />
+                  </div>
+                  <div class="form-group">
+                    <label for="songRhythm">Rhythm</label>
+                    <input id="songRhythm" />
+                  </div>
+                  <div class="form-group">
+                    <label for="songStructure">Structure</label>
+                    <input id="songStructure" />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="songLyrics">Lyrics</label>
+                  <textarea id="songLyrics"></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="songNotes">Notes</label>
+                  <textarea id="songNotes"></textarea>
+                </div>
+                <div class="admin-actions">
+                  <button class="btn primary" type="submit">Save</button>
+                  <button class="btn ghost" type="button" id="formCancel">
+                    Clear
+                  </button>
+                </div>
+              </form>
+
+              <div id="audioSection" class="hidden">
+                <hr />
+                <h4>Audio Tracks</h4>
+                <p class="muted">
+                  Upload MP3s or audio files to the public Supabase bucket.
+                </p>
+                <div class="form-group">
+                  <input type="file" id="audioFiles" multiple accept="audio/*" />
+                </div>
+                <div class="admin-actions">
+                  <button class="btn primary" id="uploadAudioBtn">
+                    Upload Audio
+                  </button>
+                </div>
+                <div id="adminAudioList" class="audio-list"></div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <h3 class="section-title">Manage Songs</h3>
+              <div id="adminSongs" class="admin-list"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+      const SUPABASE_URL = "https://buomipedlddbrutjxefm.supabase.co";
+      const SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b21pcGVkbGRkYnJ1dGp4ZWZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MTYzODksImV4cCI6MjA5NTI5MjM4OX0.OiE5lLQ5N939H2dlgZQIvPjjgQg7UQUwS-mcHwVn2fw";
+      const BUCKET_NAME = "audio";
+      const DEFAULT_PIN = "1234";
+      const PIN_STORAGE_KEY = "choirAdminPin";
+      const ADMIN_UNLOCK_KEY = "choirAdminUnlocked";
+
+      const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      const statusEl = document.getElementById("status");
+      const songListEl = document.getElementById("songList");
+      const songDetailsEl = document.getElementById("songDetails");
+      const searchInput = document.getElementById("searchInput");
+      const adminGate = document.getElementById("adminGate");
+      const adminPanel = document.getElementById("adminPanel");
+      const pinInput = document.getElementById("pinInput");
+      const pinSubmit = document.getElementById("pinSubmit");
+      const pinError = document.getElementById("pinError");
+      const adminSongsEl = document.getElementById("adminSongs");
+      const songForm = document.getElementById("songForm");
+      const formTitle = document.getElementById("formTitle");
+      const formCancel = document.getElementById("formCancel");
+      const audioSection = document.getElementById("audioSection");
+      const audioFiles = document.getElementById("audioFiles");
+      const uploadAudioBtn = document.getElementById("uploadAudioBtn");
+      const adminAudioList = document.getElementById("adminAudioList");
+
+      const formFields = {
+        name: document.getElementById("songName"),
+        key: document.getElementById("songKey"),
+        bpm: document.getElementById("songBpm"),
+        rhythm: document.getElementById("songRhythm"),
+        structure: document.getElementById("songStructure"),
+        lyrics: document.getElementById("songLyrics"),
+        notes: document.getElementById("songNotes"),
+      };
+
+      let songsCache = [];
+      let selectedSongId = null;
+      let editingSongId = null;
+      let searchTimer = null;
+
+      function setStatus(message, type = "success") {
+        if (!message) {
+          statusEl.style.display = "none";
+          statusEl.textContent = "";
+          statusEl.className = "status";
+          return;
+        }
+        statusEl.textContent = message;
+        statusEl.className = `status ${type}`;
+        statusEl.style.display = "block";
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function setActiveTab(tabId) {
+        document.querySelectorAll("nav button").forEach((btn) => {
+          btn.classList.toggle("active", btn.dataset.tab === tabId);
+        });
+        document.querySelectorAll(".tab").forEach((tab) => {
+          tab.classList.toggle("active", tab.id === tabId);
+        });
+      }
+
+      async function fetchSongs(query = "") {
+        let request = client.from("songs").select("*").order("name");
+        if (query) {
+          const safeQuery = query.replace(/%/g, "\\%");
+          request = request.or(
+            `name.ilike.%${safeQuery}%,key.ilike.%${safeQuery}%`
+          );
+        }
+        const { data, error } = await request;
+        if (error) {
+          setStatus(`Failed to load songs: ${error.message}`, "error");
+          return [];
+        }
+        return data || [];
+      }
+
+      function renderSongList() {
+        songListEl.innerHTML = "";
+        if (!songsCache.length) {
+          songListEl.innerHTML =
+            '<p class="muted">No songs yet. Add one in the admin tab.</p>';
+          return;
+        }
+        songsCache.forEach((song) => {
+          const item = document.createElement("div");
+          item.className = `song-item ${
+            selectedSongId === song.id ? "active" : ""
+          }`;
+          item.innerHTML = `<h4>${song.name}</h4><span>${
+            song.key || "No key"
+          }</span>`;
+          item.addEventListener("click", () => showSongDetails(song.id));
+          songListEl.appendChild(item);
+        });
+      }
+
+      async function showSongDetails(songId) {
+        selectedSongId = songId;
+        renderSongList();
+        const song = songsCache.find((item) => item.id === songId);
+        if (!song) return;
+        songDetailsEl.innerHTML = `
+          <h2>${song.name}</h2>
+          <div class="detail-grid">
+            <div class="detail-card"><label>Key</label>${
+              song.key || "—"
+            }</div>
+            <div class="detail-card"><label>BPM</label>${
+              song.bpm || "—"
+            }</div>
+            <div class="detail-card"><label>Rhythm</label>${
+              song.rhythm || "—"
+            }</div>
+            <div class="detail-card"><label>Structure</label>${
+              song.structure || "—"
+            }</div>
+          </div>
+          <div class="detail-card" style="margin-top:12px;">
+            <label>Lyrics</label>
+            <div>${song.lyrics ? song.lyrics.replace(/\n/g, "<br>") : "—"}</div>
+          </div>
+          <div class="detail-card" style="margin-top:12px;">
+            <label>Notes</label>
+            <div>${song.notes ? song.notes.replace(/\n/g, "<br>") : "—"}</div>
+          </div>
+          <div class="detail-card" style="margin-top:12px;">
+            <label>Audio Tracks</label>
+            <div id="libraryAudioList" class="audio-list"></div>
+          </div>
+        `;
+
+        const audioList = document.getElementById("libraryAudioList");
+        audioList.innerHTML = '<p class="muted">Loading audio...</p>';
+        const { data, error } = await client
+          .from("audio_tracks")
+          .select("*")
+          .eq("song_id", songId)
+          .order("created_at");
+        if (error) {
+          audioList.innerHTML = `<p class="muted">Error: ${error.message}</p>`;
+          return;
+        }
+        if (!data || !data.length) {
+          audioList.innerHTML = '<p class="muted">No audio tracks yet.</p>';
+          return;
+        }
+        audioList.innerHTML = "";
+        data.forEach((track) => {
+          const audioItem = document.createElement("div");
+          audioItem.className = "audio-item";
+          audioItem.innerHTML = `
+            <h5>${getTrackDisplayName(track)}</h5>
+            <audio controls preload="none" src="${track.url}"></audio>
+          `;
+          audioList.appendChild(audioItem);
+        });
+      }
+
+      async function refreshSongs(query = "") {
+        songsCache = await fetchSongs(query);
+        renderSongList();
+        renderAdminSongs();
+        if (selectedSongId) {
+          const stillExists = songsCache.some((song) => song.id === selectedSongId);
+          if (!stillExists && songsCache.length) {
+            selectedSongId = songsCache[0].id;
+          }
+        }
+        if (selectedSongId) {
+          showSongDetails(selectedSongId);
+        } else if (songsCache.length) {
+          showSongDetails(songsCache[0].id);
+        } else {
+          songDetailsEl.innerHTML =
+            "<h2>Select a song</h2><p class='muted'>No songs yet.</p>";
+        }
+      }
+
+      function ensurePin() {
+        if (!localStorage.getItem(PIN_STORAGE_KEY)) {
+          localStorage.setItem(PIN_STORAGE_KEY, DEFAULT_PIN);
+        }
+      }
+
+      function updateAdminVisibility() {
+        const unlocked = sessionStorage.getItem(ADMIN_UNLOCK_KEY) === "true";
+        adminGate.classList.toggle("hidden", unlocked);
+        adminPanel.classList.toggle("hidden", !unlocked);
+      }
+
+      function resetForm() {
+        editingSongId = null;
+        formTitle.textContent = "Add New Song";
+        songForm.reset();
+        audioSection.classList.add("hidden");
+        adminAudioList.innerHTML = "";
+      }
+
+      function populateForm(song) {
+        editingSongId = song.id;
+        formTitle.textContent = `Edit Song: ${song.name}`;
+        formFields.name.value = song.name || "";
+        formFields.key.value = song.key || "";
+        formFields.bpm.value = song.bpm || "";
+        formFields.rhythm.value = song.rhythm || "";
+        formFields.structure.value = song.structure || "";
+        formFields.lyrics.value = song.lyrics || "";
+        formFields.notes.value = song.notes || "";
+        audioSection.classList.remove("hidden");
+        loadAdminAudio(song.id);
+      }
+
+      function renderAdminSongs() {
+        adminSongsEl.innerHTML = "";
+        if (!songsCache.length) {
+          adminSongsEl.innerHTML =
+            '<p class="muted">No songs yet. Add your first song.</p>';
+          return;
+        }
+        songsCache.forEach((song) => {
+          const card = document.createElement("div");
+          card.className = "admin-card";
+          card.innerHTML = `
+            <h4>${song.name}</h4>
+            <small>${song.key || "No key"} • BPM ${song.bpm || "—"}</small>
+            <div class="admin-actions" style="margin-top:10px;">
+              <button class="btn ghost" data-action="edit">Edit</button>
+              <button class="btn danger" data-action="delete">Delete</button>
+            </div>
+          `;
+          card.querySelector('[data-action="edit"]').addEventListener("click", () => {
+            populateForm(song);
+            setActiveTab("admin");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          });
+          card
+            .querySelector('[data-action="delete"]')
+            .addEventListener("click", () => deleteSong(song));
+          adminSongsEl.appendChild(card);
+        });
+      }
+
+      async function deleteSong(song) {
+        if (!confirm(`Delete "${song.name}" and all its audio tracks?`)) {
+          return;
+        }
+        setStatus("Deleting song...");
+        const { error } = await client.from("songs").delete().eq("id", song.id);
+        if (error) {
+          setStatus(`Failed to delete song: ${error.message}`, "error");
+          return;
+        }
+        if (editingSongId === song.id) {
+          resetForm();
+        }
+        setStatus("Song deleted.");
+        refreshSongs(searchInput.value.trim());
+      }
+
+      async function loadAdminAudio(songId) {
+        adminAudioList.innerHTML = '<p class="muted">Loading audio...</p>';
+        const { data, error } = await client
+          .from("audio_tracks")
+          .select("*")
+          .eq("song_id", songId)
+          .order("created_at");
+        if (error) {
+          adminAudioList.innerHTML = `<p class="muted">Error: ${error.message}</p>`;
+          return;
+        }
+        if (!data || !data.length) {
+          adminAudioList.innerHTML = '<p class="muted">No audio yet.</p>';
+          return;
+        }
+        adminAudioList.innerHTML = "";
+        data.forEach((track) => {
+          const item = document.createElement("div");
+          item.className = "audio-item";
+          item.innerHTML = `
+            <h5>${getTrackDisplayName(track)}</h5>
+            <audio controls preload="none" src="${track.url}"></audio>
+            <div class="admin-actions" style="margin-top:8px;">
+              <button class="btn danger" data-action="remove">Remove</button>
+            </div>
+          `;
+          item
+            .querySelector('[data-action="remove"]')
+            .addEventListener("click", () => deleteTrack(track));
+          adminAudioList.appendChild(item);
+        });
+      }
+
+      function getTrackDisplayName(track) {
+        if (!track?.name) return "Audio track";
+        const parts = track.name.split("/");
+        return parts[parts.length - 1].replace(/^[\w-]+-/, "");
+      }
+
+      async function deleteTrack(track) {
+        if (!confirm("Delete this audio track?")) return;
+        setStatus("Removing audio...");
+        const storageResult = await client.storage
+          .from(BUCKET_NAME)
+          .remove([track.name]);
+        if (storageResult.error) {
+          setStatus(
+            `Storage remove failed: ${storageResult.error.message}`,
+            "error"
+          );
+          return;
+        }
+        const { error } = await client
+          .from("audio_tracks")
+          .delete()
+          .eq("id", track.id);
+        if (error) {
+          setStatus(`Failed to delete track: ${error.message}`, "error");
+          return;
+        }
+        setStatus("Audio track removed.");
+        loadAdminAudio(editingSongId);
+        if (selectedSongId === editingSongId) {
+          showSongDetails(selectedSongId);
+        }
+      }
+
+      function createPayload() {
+        const bpmValue = formFields.bpm.value.trim();
+        return {
+          name: formFields.name.value.trim(),
+          key: formFields.key.value.trim() || null,
+          bpm: bpmValue ? Number(bpmValue) : null,
+          rhythm: formFields.rhythm.value.trim() || null,
+          structure: formFields.structure.value.trim() || null,
+          lyrics: formFields.lyrics.value.trim() || null,
+          notes: formFields.notes.value.trim() || null,
+        };
+      }
+
+      function safeFileName(fileName) {
+        return fileName.replace(/[^\w.\-]+/g, "_");
+      }
+
+      async function uploadAudioFiles() {
+        if (!editingSongId) {
+          setStatus("Select a song to upload audio.", "error");
+          return;
+        }
+        if (!audioFiles.files.length) {
+          setStatus("Choose audio files to upload.", "error");
+          return;
+        }
+        setStatus("Uploading audio...");
+        for (const file of audioFiles.files) {
+          const uniqueName = `${editingSongId}/${crypto.randomUUID()}-${safeFileName(
+            file.name
+          )}`;
+          const { error: uploadError } = await client.storage
+            .from(BUCKET_NAME)
+            .upload(uniqueName, file, { upsert: false });
+          if (uploadError) {
+            setStatus(`Upload failed: ${uploadError.message}`, "error");
+            return;
+          }
+          const { data: publicData } = client.storage
+            .from(BUCKET_NAME)
+            .getPublicUrl(uniqueName);
+          const { error: insertError } = await client
+            .from("audio_tracks")
+            .insert({
+              song_id: editingSongId,
+              name: uniqueName,
+              url: publicData.publicUrl,
+            });
+          if (insertError) {
+            setStatus(`DB insert failed: ${insertError.message}`, "error");
+            return;
+          }
+        }
+        audioFiles.value = "";
+        setStatus("Audio uploaded.");
+        loadAdminAudio(editingSongId);
+        if (selectedSongId === editingSongId) {
+          showSongDetails(selectedSongId);
+        }
+      }
+
+      document.querySelectorAll("nav button").forEach((button) => {
+        button.addEventListener("click", () => {
+          setActiveTab(button.dataset.tab);
+        });
+      });
+
+      searchInput.addEventListener("input", (event) => {
+        clearTimeout(searchTimer);
+        const value = event.target.value.trim();
+        searchTimer = setTimeout(() => refreshSongs(value), 300);
+      });
+
+      pinSubmit.addEventListener("click", () => {
+        ensurePin();
+        const storedPin = localStorage.getItem(PIN_STORAGE_KEY) || DEFAULT_PIN;
+        if (pinInput.value === storedPin) {
+          sessionStorage.setItem(ADMIN_UNLOCK_KEY, "true");
+          pinInput.value = "";
+          pinError.textContent = "";
+          updateAdminVisibility();
+          resetForm();
+          setStatus("Admin unlocked.");
+        } else {
+          pinError.textContent = "Incorrect PIN.";
+        }
+      });
+
+      songForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const payload = createPayload();
+        if (!payload.name) {
+          setStatus("Song name is required.", "error");
+          return;
+        }
+        setStatus("Saving...");
+        if (editingSongId) {
+          const { error } = await client
+            .from("songs")
+            .update(payload)
+            .eq("id", editingSongId);
+          if (error) {
+            setStatus(`Update failed: ${error.message}`, "error");
+            return;
+          }
+          setStatus("Song updated.");
+        } else {
+          const { data, error } = await client
+            .from("songs")
+            .insert(payload)
+            .select()
+            .single();
+          if (error) {
+            setStatus(`Create failed: ${error.message}`, "error");
+            return;
+          }
+          editingSongId = data.id;
+          formTitle.textContent = `Edit Song: ${data.name}`;
+          audioSection.classList.remove("hidden");
+          setStatus("Song created. You can now upload audio.");
+        }
+        refreshSongs(searchInput.value.trim());
+      });
+
+      formCancel.addEventListener("click", () => {
+        resetForm();
+      });
+
+      uploadAudioBtn.addEventListener("click", uploadAudioFiles);
+
+      ensurePin();
+      updateAdminVisibility();
+      refreshSongs();
+    </script>
+  </body>
+</html>
