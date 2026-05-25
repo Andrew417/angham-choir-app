@@ -437,6 +437,7 @@
       const DEFAULT_PIN = "1234";
       const MAX_AUDIO_MB = 5;
       const MAX_AUDIO_BYTES = MAX_AUDIO_MB * 1024 * 1024;
+      const UUID_PREFIX_REGEX = /^[a-f0-9-]{36}-/i;
       const PIN_STORAGE_KEY = "choirAdminPin";
       const ADMIN_UNLOCK_KEY = "choirAdminUnlocked";
 
@@ -733,7 +734,7 @@
         if (!track?.name) return "Audio track";
         const parts = track.name.split("/");
         const fileName = parts[parts.length - 1];
-        return fileName.replace(/^[a-f0-9-]{36}-/i, "");
+        return fileName.replace(UUID_PREFIX_REGEX, "");
       }
 
       async function deleteTrack(track) {
@@ -779,7 +780,8 @@
 
       function safeFileName(fileName) {
         const sanitized = fileName.replace(/[^a-zA-Z0-9._-]+/g, "_");
-        return sanitized.replace(/^\.+/, "_");
+        const noLeadingDots = sanitized.replace(/^\.+/, "_");
+        return noLeadingDots.replace(/\.\.+/g, "_");
       }
 
       function isLikelyAudioFile(file) {
