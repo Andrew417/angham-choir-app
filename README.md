@@ -3,13 +3,6 @@
 
 A mobile-first web app that centralises song data for the choir — replacing scattered WhatsApp messages with a single, always-accessible reference for all members.
 
----
-
-## Live URL
-
-> **https://angham-choir-app.vercel.app**
-
----
 
 ## Features
 

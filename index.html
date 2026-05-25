@@ -961,7 +961,7 @@
 
     // ─── Dashboard ───────────────────────────────────────────────────────────────
     async function loadSongs() {
-      const { data, error } = await db.from('songs').select('*').order('created_at', { ascending: false });
+      const { data, error } = await db.from('songs').select('*').order('sort_order').order('created_at');
       if (error) { showToast('Failed to load songs'); return; }
       allSongs = data || [];
       renderSongList(allSongs);
@@ -982,7 +982,8 @@
       }
 
       list.innerHTML = songs.map(song => `
-    <div class="song-card" onclick="openSongDetail('${song.id}')">
+<div class="song-card" draggable="true" data-id="${song.id}" onclick="openSongDetail('${song.id}')">
+      <span class="material-symbols-outlined drag-handle-btn" style="color:#454653; font-size:22px; flex-shrink:0;">drag_indicator</span>
       <span class="material-symbols-outlined" style="color:#bec2ff; font-size:26px; flex-shrink:0;">music_note</span>
       <div style="flex:1; min-width:0;">
         <div style="font-size:16px; font-weight:600; color:#e5e2e1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escHtml(song.name)}</div>
@@ -995,6 +996,69 @@
       <span class="material-symbols-outlined" style="color:#E60188; flex-shrink:0;">chevron_right</span>
     </div>
   `).join('');
+      if (songs.length > 0) initDashboardDrag();
+    }
+    function initDashboardDrag() {
+      const list = document.getElementById('song-list');
+      let dragSrc = null;
+
+      list.querySelectorAll('.song-card').forEach(card => {
+        card.addEventListener('dragstart', e => {
+          dragSrc = card;
+          card.style.opacity = '0.4';
+          e.dataTransfer.effectAllowed = 'move';
+        });
+        card.addEventListener('dragend', () => {
+          card.style.opacity = '1';
+          list.querySelectorAll('.song-card').forEach(c => c.classList.remove('drag-over'));
+          saveDashboardOrder();
+        });
+        card.addEventListener('dragover', e => {
+          e.preventDefault();
+          if (card === dragSrc) return;
+          list.querySelectorAll('.song-card').forEach(c => c.classList.remove('drag-over'));
+          card.classList.add('drag-over');
+          const cards = [...list.querySelectorAll('.song-card')];
+          const srcIdx = cards.indexOf(dragSrc);
+          const tgtIdx = cards.indexOf(card);
+          if (srcIdx < tgtIdx) card.after(dragSrc);
+          else card.before(dragSrc);
+        });
+        card.addEventListener('drop', e => e.preventDefault());
+
+        // Mobile touch
+        card.addEventListener('touchstart', e => {
+          dragSrc = card;
+          card.style.opacity = '0.4';
+        }, { passive: true });
+        card.addEventListener('touchmove', e => {
+          e.preventDefault();
+          const touch = e.touches[0];
+          const target = document.elementFromPoint(touch.clientX, touch.clientY)?.closest('.song-card');
+          if (!target || target === dragSrc) return;
+          list.querySelectorAll('.song-card').forEach(c => c.classList.remove('drag-over'));
+          target.classList.add('drag-over');
+          const cards = [...list.querySelectorAll('.song-card')];
+          const srcIdx = cards.indexOf(dragSrc);
+          const tgtIdx = cards.indexOf(target);
+          if (srcIdx < tgtIdx) target.after(dragSrc);
+          else target.before(dragSrc);
+        }, { passive: false });
+        card.addEventListener('touchend', () => {
+          if (!dragSrc) return;
+          dragSrc.style.opacity = '1';
+          list.querySelectorAll('.song-card').forEach(c => c.classList.remove('drag-over'));
+          saveDashboardOrder();
+          dragSrc = null;
+        });
+      });
+    }
+
+    async function saveDashboardOrder() {
+      const cards = [...document.getElementById('song-list').querySelectorAll('.song-card')];
+      await Promise.all(cards.map((card, index) =>
+        db.from('songs').update({ sort_order: index }).eq('id', card.dataset.id)
+      ));
     }
 
     document.getElementById('search-input').addEventListener('input', function () {
