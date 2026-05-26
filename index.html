@@ -982,7 +982,7 @@
       }
 
       list.innerHTML = songs.map(song => `
-<div class="song-card" draggable="true" data-id="${song.id}" onclick="openSongDetail('${song.id}')">
+<div class="song-card" data-id="${song.id}" onclick="openSongDetail('${song.id}')">
       <span class="material-symbols-outlined drag-handle-btn" style="color:#454653; font-size:22px; flex-shrink:0;">drag_indicator</span>
       <span class="material-symbols-outlined" style="color:#bec2ff; font-size:26px; flex-shrink:0;">music_note</span>
       <div style="flex:1; min-width:0;">
@@ -1003,13 +1003,21 @@
       let dragSrc = null;
 
       list.querySelectorAll('.song-card').forEach(card => {
+        const handle = card.querySelector('.drag-handle-btn');
+
+        // Enable draggable only when holding the handle
+        handle.addEventListener('mousedown', () => card.setAttribute('draggable', 'true'));
+        document.addEventListener('mouseup', () => card.setAttribute('draggable', 'false'));
+
         card.addEventListener('dragstart', e => {
+          if (!JSON.parse(card.getAttribute('draggable'))) { e.preventDefault(); return; }
           dragSrc = card;
           card.style.opacity = '0.4';
           e.dataTransfer.effectAllowed = 'move';
         });
         card.addEventListener('dragend', () => {
           card.style.opacity = '1';
+          card.setAttribute('draggable', 'false');
           list.querySelectorAll('.song-card').forEach(c => c.classList.remove('drag-over'));
           saveDashboardOrder();
         });
@@ -1026,12 +1034,13 @@
         });
         card.addEventListener('drop', e => e.preventDefault());
 
-        // Mobile touch
-        card.addEventListener('touchstart', e => {
+        // Mobile touch — handle only
+        handle.addEventListener('touchstart', e => {
           dragSrc = card;
           card.style.opacity = '0.4';
         }, { passive: true });
         card.addEventListener('touchmove', e => {
+          if (!dragSrc) return;
           e.preventDefault();
           const touch = e.touches[0];
           const target = document.elementFromPoint(touch.clientX, touch.clientY)?.closest('.song-card');
@@ -1053,7 +1062,6 @@
         });
       });
     }
-
     async function saveDashboardOrder() {
       const cards = [...document.getElementById('song-list').querySelectorAll('.song-card')];
       await Promise.all(cards.map((card, index) =>
