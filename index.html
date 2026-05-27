@@ -1278,7 +1278,7 @@
             </button>
           </div>
         </div>
-        ${!isPdf ? `<div style="max-height:400px; overflow-y:auto; border-radius:0.5rem; border:1px solid #454653;">
+        ${!isPdf ? `<div style="max-height:300px; overflow-y:auto; border-radius:0.5rem; border:1px solid #454653;">
   <img src="${escHtml(sheet.url)}" alt="${escHtml(sheet.name || '')}" onclick="window.open('${escHtml(sheet.url)}','_blank')" style="width:100%; display:block; cursor:pointer;" loading="lazy"/>
 </div>` : ''}
       </div>
